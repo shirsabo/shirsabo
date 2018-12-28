@@ -1,0 +1,462 @@
+/******************************************
+*Student name: shir sabo
+*Student ID:206481665
+*Submit Info:saboshi1
+*Exercise name: ex6
+******************************************/
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#define MAX_USER_NAME 10
+#define MIN_USER_NAME 3
+#define MAX_PASSWORD 15
+#define MIN_PASSWORD 3
+
+
+typedef struct
+{
+	char userid[10];
+	char* firstname;
+	char* lastname;
+	char* age;
+	char gender;
+	char* username;
+	char* password;
+	char* hobbies;
+	char* description;
+}user;
+
+typedef struct
+{
+	user*data;
+	struct node* next;
+}node;
+
+node* FindPlace(char *new_last_name, node* head);
+void readFile(user*** males, user**females, node** head,int*malescounter);
+void AddUser(user*** males, node** head);
+user* LogIn(user** malesptr, node* head,int * flag, int malescounter);
+user* CheckWomen(node* head,char* password, char*username);
+user* CheckMen(user**malesptr, char*password,char*username,int malescounter);
+user* CheckWomen(node* head,char* password,char*username) {
+	 node* current = head;  // Initialize current 
+	while (current != NULL)
+	{
+		if (strcmp(current->data->username, username) == 0)
+		{
+			return current->data;
+		}
+		current = current->next;
+	}
+	return NULL;
+}
+user* CheckMen(user**malesptr, char*password, char*username,int malescounter) {
+	int i;
+
+	for (i = 0; i < malescounter; i++) {
+		if (strcmp(malesptr[i]->username, username) == 0)
+		{
+			return malesptr[i];
+		}
+
+	}
+	return NULL;
+
+
+}
+
+user* LogIn(user** malesptr, node* head, int *flag,int malescounter)
+{
+	user** PointerToMale = malesptr;
+	node* HeadToWomen = head;
+	char username[MAX_USER_NAME+1];
+	char password[MAX_PASSWORD+1];
+	user* existwomen;
+	user* existmen;
+	int i;
+	printf("Please enter your username:\n");
+	scanf("%s", username);
+	//printf("Please enter your password:\n");
+	//scanf("%s", password);
+	existwomen=CheckWomen(HeadToWomen, password, username);
+	if (existwomen != NULL)
+	{	printf("Please enter your password:\n");
+		scanf("%s", password);
+		if (strcmp(existwomen->password, password) == 0)
+		{
+			*flag = 0;
+			return existwomen;
+		}
+		else {
+			printf("Bad password\n");
+			return NULL;
+		}
+	}
+	else {
+		existmen=CheckMen(PointerToMale, password, username,malescounter);
+		if (existmen != NULL)
+		{
+			printf("Please enter your password:\n");
+			scanf("%s", password);
+			if (strcmp(existmen->password, password) == 0)
+			{
+				return existmen;
+			}
+			else {
+				printf("Bad password\n");
+				return NULL;
+			}
+		}
+		else {
+
+			printf("user do not exist please try again\n");
+			*flag = 1;
+		}
+		
+	}
+}
+void AddUser(user*** males, node** head) {
+	user* newuser;
+	char buffer[300];
+	int i;
+	int index = 0;
+	newuser= (user*)(malloc(sizeof(user)));
+	if (newuser == NULL)
+	{
+		exit(1);
+	}
+
+	for (i = 0; i <= 8; i++)
+	{
+
+		switch (i)
+
+		{
+		case 0:
+			printf("Please enter your ID:\n");
+			scanf("%s", buffer);
+			strcpy(newuser->userid, buffer);
+			break;
+
+		case 2:
+			printf("Please enter your first name:\n");
+			scanf("%s", buffer);
+			newuser->firstname = (char*)malloc(sizeof(char)*(strlen(buffer)));
+			strcpy(newuser->firstname, buffer);
+			break;
+
+		case 3:
+
+			printf("Please enter your last name:\n");
+			scanf("%s", buffer);
+			newuser->lastname = (char*)malloc(sizeof(char)*(strlen(buffer)));
+			strcpy(newuser->lastname, buffer);
+			break;
+
+		case 4:
+			printf("Please enter your age (18 to 100):\n");
+			scanf("%s", buffer);
+			newuser->age = (char*)malloc(sizeof(char)*(strlen(buffer)));
+			strcpy(newuser->age, buffer);
+			break;
+
+		case 5:
+			printf("Please enter your gender (F-female, M-male):\n");
+			scanf("%s", buffer);
+			newuser->gender = buffer[0];
+			break;
+		case 6:
+			printf("Choose a username(3 - 10 characters):\n");
+			scanf("%s", buffer);
+			newuser->username = (char*)malloc(sizeof(char)*(strlen(buffer)));
+			strcpy(newuser->username, buffer);
+			break;
+		case 7:
+			printf("please choose 4 hobbies: Baseball = 1, Basketball = 2, Bicycle = 3, Books = 4, Drawing = 5, Gym = 6, Movies = 7, Poetry = 8\n");
+			fgets (buffer,300,stdin);
+			while (buffer[index] != '\0');
+			{
+				if (buffer[index] == ' ')
+				{
+					buffer[index] = ',';
+				}
+				if (buffer[index] == '\n')
+				{
+					buffer[index] = '/0';
+				}
+				index++;
+			}
+			newuser->hobbies = (char*)malloc(sizeof(char)*(strlen(buffer)));
+			strcpy(newuser->hobbies, buffer);
+			break;
+		case 8:
+
+			printf("Choose a password (attention-minimum 3 characters):\n");
+			scanf("%s", buffer);
+			newuser->password = (char*)malloc(sizeof(char)*(strlen(buffer)));
+			strcpy(newuser->password, buffer);
+
+			break;
+
+
+
+		}
+
+	}
+}
+
+node*FindPlace(char *new_last_name, node* head) {
+
+	node *prev = NULL;
+	node *current = head;
+	while (current != NULL) {
+		if (strcmp(new_last_name, current->data->lastname) < 0) {
+			break;
+		}
+
+		prev = current;
+		current = current->next;
+	}
+
+	return prev;
+}
+
+
+
+
+void readFile(user*** males, user**females,node** head,int* malescounter){
+
+	int c;
+	int i;
+	int j;
+	int info;
+	int* ptr_id;
+	int* ptr_name;
+	int* ptr_family;
+	FILE* fpointer;
+	char str[300];
+	int strIndex;
+	user* ptr;
+	user** pointer;
+	int pointer_index;
+	user** temp=NULL;
+	node* after;
+	
+	fpointer = fopen("input.txt", "r");
+	if (fpointer == NULL)
+	{
+		exit(1);
+	}
+
+	// Start reading from the file - read the fist char in the line
+	strIndex = 0;
+	str[strIndex] = '0';
+	//str[strIndex] = fgetc(fpointer);
+	
+	while (1)
+	{
+		ptr = (user*)(malloc(sizeof(user)));
+		if (ptr == NULL)
+		{
+			exit(1);
+		}
+		for (info = 0 ,pointer_index=0; info <= 8; info++, pointer_index++)
+		{
+			strIndex = -1;
+			while (str[strIndex] != ';' && str[strIndex] != '\n')
+			{
+				strIndex++;
+				str[strIndex] = fgetc(fpointer);
+				if (str[strIndex] == EOF)
+				{
+					return;
+				}
+				
+			}
+			str[strIndex] = '\0';
+			switch (info)
+			{
+
+
+			case 0:
+				strcpy(ptr->userid, str);
+				break;
+			case 1:
+				ptr->firstname = (char*)malloc(sizeof(char)*(strlen(str)));
+				if (ptr->firstname == NULL) {
+					exit(1);
+
+				}
+				strcpy(ptr->firstname, str);
+				break;
+			case 2:
+				ptr->lastname = (char*)malloc(sizeof(char)*(strlen(str)));
+				if (ptr->lastname == NULL) {
+					exit(1);
+
+				}
+				strcpy(ptr->lastname, str);
+				break;
+			case 3:
+				ptr->age = (char*)malloc(sizeof(char)*(strlen(str)));
+				if (ptr->age == NULL) {
+					exit(1);
+
+				}
+				strcpy(ptr->age, str);
+				break;
+			case 4:
+				ptr->gender = str[0];
+				break;
+			case 5:
+				ptr->username = (char*)malloc(sizeof(char)*(strlen(str)));
+				if (ptr->username == NULL) {
+					exit(1);
+
+				}
+				strcpy(ptr->username, str);
+				break;
+			case 6:
+				ptr->password = (char*)malloc(sizeof(char)*(strlen(str)));
+				if (ptr->password == NULL) {
+					exit(1);
+
+				}
+				strcpy(ptr->password, str);
+				break;
+
+			case 7:
+				ptr->hobbies = (char*)malloc(sizeof(char)*(strlen(str)));
+				if (ptr->hobbies == NULL) {
+					exit(1);
+
+				}
+				strcpy(ptr->hobbies, str);
+				break;
+
+			case 8:
+				ptr->description = (char*)malloc(sizeof(char)*(strlen(str)));
+				if (ptr->description == NULL) {
+					exit(1);
+
+				}
+				strcpy(ptr->description, str);
+				break;
+			}
+			
+
+		} // finished user
+		if (ptr->gender == 'M') {
+			*malescounter = *malescounter + 1;
+			if (*malescounter == 1) {
+				*males = (user**)malloc(sizeof(user*));
+				if (*males == NULL) {
+					exit(1);
+
+				}
+				temp = *males;
+			}
+			else {
+				*males = (user**)realloc(temp, (*malescounter)* sizeof(user*));
+				if (*males == NULL) {
+					exit(1);
+
+				}
+
+				temp = *males;
+			}
+			*(*males + *malescounter-1) = ptr;
+		}
+		if (ptr->gender == 'F') {
+			node *new_entry = (node *)malloc(sizeof(node));
+			if (NULL == new_entry) {
+				exit(1);
+			}
+			new_entry->data = ptr;//conects the data to the struct user
+			after = FindPlace(new_entry->data->lastname, *head);
+			if (NULL == after) {
+				if (NULL == *head) {
+					new_entry->next = NULL;
+				}
+				else
+				{
+					new_entry->next = *head;
+				}
+				*head = new_entry;
+			}
+			else    // add it in the middle
+			{
+				new_entry->next = after->next;
+				after->next = new_entry;
+			}
+
+
+			}
+
+			
+
+		}
+
+	}
+
+
+int main()
+{
+	user** malesPtr = NULL;
+	user*femalelist = NULL;
+	node* head = NULL;
+	user* logged;
+	int malescounter = 0;
+	//its value will be changed once in order to check if the username inserted does not exist.
+	int indicator = 0;
+	 readFile(&malesPtr, &femalelist, &head,&malescounter);//by adress
+	 printf("%s\n", (*malesPtr)->firstname);
+	 printf("%s\n", (*(malesPtr+1))->firstname);
+
+	 printf("succes\n");
+	int option = 0;
+	while (option != 3)
+	{
+		printf("Welcome! please choose an option\n");
+		printf("1 - Log in\n");
+		printf("2 - New member\n");
+		printf("3 - Exit \n");
+		scanf("%d" ,&option);
+		if (option == 1)
+		{
+			
+			logged=LogIn(malesPtr,head,&indicator,malescounter);//the pointers are sent by adress because we dont want to change them.
+			if (indicator == 1) {
+				logged = LogIn(malesPtr, head, &indicator,malescounter);
+				if (logged != NULL)
+				{
+					printf("Hello %s\n", logged->username);
+				}
+			}
+			else if (logged != NULL)
+			{
+				printf("Hello %s\n", logged->username);
+
+
+			}
+
+		}
+	    else if (option == 2)
+		{
+			AddUser(&(malesPtr),&(femalelist));
+		}
+	    else if (option == 3)
+		{
+			exit(1);
+
+		}
+		else
+		{
+			printf("Bad choice, please try again\n");
+
+		} 
+
+	}
+	return 0;
+}
+
