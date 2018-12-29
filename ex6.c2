@@ -38,7 +38,45 @@ user* AddUser(user*** males, node** head,int* malescounter);
 user* LogIn(user** malesptr, node* head,int * flag, int malescounter);
 user* CheckWomen(node* head,char* password, char*username);
 user* CheckMen(user**malesptr, char*password,char*username,int malescounter);
-void MainMenu(user* user) {
+void DeleteUser(user*account, user***malesptr, node**head);
+void DeleteUser(user*account, user***malesptr, node**head) {
+	if (account->gender == 'F')
+	{
+		// Store head node 
+		 node* temp = *head;
+		 node* prev = NULL;
+		// If head node itself holds the username to be deleted 
+		if ((temp != NULL) && (strcmp(temp->data->username,account->username)==0))
+		{
+			*head = temp->next;   // the head of the linked list is changed
+			free(temp);               // free old head 
+			return;
+		}
+			// Search for the key to be deleted
+			//each iteration we movee forward
+		while ((temp != NULL) && (strcmp(temp->data->username, account->username) != 0))
+		{
+			prev = temp;
+			temp = temp->next;
+		}
+
+		// If username was not present in linked list 
+		if (temp == NULL) return;
+
+		// Unlink the node from linked list 
+		//now the previouse node is linked to the next node that will be deleted
+		prev->next = temp->next;
+
+		free(temp);  // Free memory
+
+	}
+	else if (account->gender == 'M')
+	{
+
+	}
+}
+
+void MainMenu(user* account, user*** malesptr,node** head) {
 	int option = 0;
 	while ((option != 2) && (option != 3))
 	{
@@ -53,7 +91,7 @@ void MainMenu(user* user) {
 			exit(1);
 			break;
 		case 2:
-			exit(1);
+			DeleteUser(account,malesptr,head);
 			break;
 		case 3:
 
@@ -513,7 +551,7 @@ int main()
 				if (logged != NULL)
 				{
 					printf("Hello %s\n", logged->username);
-					MainMenu(logged);
+					MainMenu(logged,&malesPtr,&head);
 				}
 				else
 				{
@@ -523,7 +561,7 @@ int main()
 			else if (logged != NULL)
 			{
 				printf("Hello %s\n", logged->username);
-				MainMenu(logged);
+				MainMenu(logged, &malesPtr, &head);
 
 			}
 
@@ -532,7 +570,7 @@ int main()
 
 			newmember = AddUser(&(malesPtr), &(head), &(malescounter));
 			printf("Hi %s,lets find love!\n", newmember->firstname);
-			MainMenu(newmember);
+			MainMenu(newmember,&malesPtr,&head);
 
 			break;
 		case 3:
