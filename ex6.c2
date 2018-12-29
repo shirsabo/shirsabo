@@ -38,8 +38,9 @@ user* AddUser(user*** males, node** head,int* malescounter);
 user* LogIn(user** malesptr, node* head,int * flag, int malescounter);
 user* CheckWomen(node* head,char* password, char*username);
 user* CheckMen(user**malesptr, char*password,char*username,int malescounter);
-void DeleteUser(user*account, user***malesptr, node**head);
-void DeleteUser(user*account, user***malesptr, node**head) {
+void DeleteUser(user*account, user***malesptr, node**head,int* malescounter);
+void DeleteUser(user*account, user***malesptr, node**head,int* malescounter) {
+	int i;
 	if (account->gender == 'F')
 	{
 		// Store head node 
@@ -72,11 +73,31 @@ void DeleteUser(user*account, user***malesptr, node**head) {
 	}
 	else if (account->gender == 'M')
 	{
+		for (i = 0; i < *malescounter; i++)
+			if (*(*malesptr + i)==account)
+				break;
+
+		// If x found in array 
+		if (i < *malescounter)
+		{
+			// reduce size of array and move all 
+			// elements on space ahead 
+			*malescounter = *malescounter - 1;//there is a male who wants to be deleted
+			for (int j = i; j < *malescounter; j++) {
+				*(*malesptr + j) = *(*malesptr + (j + 1));
+			}
+				
+			*malesptr = (user**)realloc(*malesptr, (*malescounter) * sizeof(user*));//frees one cell in the array
+			if (*malesptr == NULL) {
+				exit(1);
+
+			}
+		}
 
 	}
 }
 
-void MainMenu(user* account, user*** malesptr,node** head) {
+void MainMenu(user* account, user*** malesptr,node** head,int* malescounter) {
 	int option = 0;
 	while ((option != 2) && (option != 3))
 	{
@@ -91,7 +112,7 @@ void MainMenu(user* account, user*** malesptr,node** head) {
 			exit(1);
 			break;
 		case 2:
-			DeleteUser(account,malesptr,head);
+			DeleteUser(account,malesptr,head,malescounter);
 			break;
 		case 3:
 
@@ -551,7 +572,7 @@ int main()
 				if (logged != NULL)
 				{
 					printf("Hello %s\n", logged->username);
-					MainMenu(logged,&malesPtr,&head);
+					MainMenu(logged,&malesPtr,&head,&malescounter);
 				}
 				else
 				{
@@ -561,7 +582,7 @@ int main()
 			else if (logged != NULL)
 			{
 				printf("Hello %s\n", logged->username);
-				MainMenu(logged, &malesPtr, &head);
+				MainMenu(logged, &malesPtr, &head, &malescounter);
 
 			}
 
@@ -570,7 +591,7 @@ int main()
 
 			newmember = AddUser(&(malesPtr), &(head), &(malescounter));
 			printf("Hi %s,lets find love!\n", newmember->firstname);
-			MainMenu(newmember,&malesPtr,&head);
+			MainMenu(newmember,&malesPtr,&head,&malescounter);
 
 			break;
 		case 3:
