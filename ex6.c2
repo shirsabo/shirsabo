@@ -11,7 +11,7 @@
 #define MIN_USER_NAME 3
 #define MAX_PASSWORD 15
 #define MIN_PASSWORD 3
-
+enum hobbies { BASEBALL = 1, BASKETBALL, BICYCLE, BOOKS, DRAWING, GYM, MOVIES, POETRY };
 
 typedef struct
 {
@@ -38,9 +38,37 @@ user* AddUser(user*** males, node** head,int* malescounter);
 user* LogIn(user** malesptr, node* head,int * flag, int malescounter);
 user* CheckWomen(node* head,char* password, char*username);
 user* CheckMen(user**malesptr, char*password,char*username,int malescounter);
+void MainMenu(user* user) {
+	int option = 0;
+	while ((option != 2) && (option != 3))
+	{
+		printf("please choose an option:\n");
+		printf("1 - Find a match\n");
+		printf("2 - found love, DELETE me\n");
+		printf("3 -  Log out\n");
+		scanf("%d", &option);
+		switch (option)
+		{
+		case 1:
+			exit(1);
+			break;
+		case 2:
+			exit(1);
+			break;
+		case 3:
+
+			return;
+			
+		default:
+			continue;
+
+		}
+	}
+
+}
 void hobbies(char* hobbies) {
 	int index = 0;
-	while ((hobbies[index]!='/0'))
+	while ((hobbies[index]!='\0'))
 	{
 		if (hobbies[index] == ' ') {
 			hobbies[index] = ',';
@@ -205,8 +233,13 @@ user* AddUser(user*** males, node** head,int* malescounter) {
 
 			break;
 		case 9:
-			printf("Some word about yourself");
-			scanf("%s", buffer);
+			printf("Some words about yourself\n");
+			//scanf("%s", buffer);
+			//gets the enter
+			scanf("%c", &dummy);
+			fgets(buffer, 212, stdin);
+			//change the'/n' to'\0'
+			buffer[strlen(buffer) - 1] = '\0';
 			newuser->description = (char*)malloc(sizeof(char)*(strlen(buffer)));
 			strcpy(newuser->description, buffer);
 
@@ -452,6 +485,7 @@ int main()
 	user*femalelist = NULL;
 	node* head = NULL;
 	user* logged;
+	user* newmember;
 	int malescounter = 0;
 	//its value will be changed once in order to check if the username inserted does not exist.
 	int indicator = 0;
@@ -469,18 +503,56 @@ int main()
 		printf("1 - Log in\n");
 		printf("2 - New member\n");
 		printf("3 - Exit \n");
-		scanf("%d" ,&option);
-		if (option == 1)
+		scanf("%d", &option);
+		switch (option) {
+
+		case 1:
+			logged = LogIn(malesPtr, head, &indicator, malescounter);//the pointers are sent by adress because we dont want to change them.
+			if (indicator == 1) {
+				logged = LogIn(malesPtr, head, &indicator, malescounter);
+				if (logged != NULL)
+				{
+					printf("Hello %s\n", logged->username);
+					MainMenu(logged);
+				}
+				else
+				{
+					continue;
+				}
+			}
+			else if (logged != NULL)
+			{
+				printf("Hello %s\n", logged->username);
+				MainMenu(logged);
+
+			}
+
+			break;
+		case 2:
+
+			newmember = AddUser(&(malesPtr), &(head), &(malescounter));
+			printf("Hi %s,lets find love!\n", newmember->firstname);
+			MainMenu(newmember);
+
+			break;
+		case 3:
+			exit(1);
+			break;
+		default:
+			printf("Bad choice, please try again\n");
+		}
+		/*if (option == 1)
 		{
-			
+
 			logged=LogIn(malesPtr,head,&indicator,malescounter);//the pointers are sent by adress because we dont want to change them.
 			if (indicator == 1) {
 				logged = LogIn(malesPtr, head, &indicator,malescounter);
 				if (logged != NULL)
 				{
 					printf("Hello %s\n", logged->username);
+					MainMenu(logged);
 				}
-				else 
+				else
 				{
 					continue;
 				}
@@ -493,13 +565,13 @@ int main()
 			}
 
 		}
-	    else if (option == 2)
+		else if (option == 2)
 		{
 			user* newmember=AddUser(&(malesPtr),&(head),&(malescounter));
 			printf("Hi %s,lets find love!\n", newmember->firstname);
 
 		}
-	    else if (option == 3)
+		else if (option == 3)
 		{
 			exit(1);
 
@@ -508,8 +580,9 @@ int main()
 		{
 			printf("Bad choice, please try again\n");
 
-		} 
+		}
 
+	}*/
 	}
 	return 0;
 }
