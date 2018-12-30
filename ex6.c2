@@ -22,7 +22,7 @@ typedef struct
 	char gender;
 	char* username;
 	char* password;
-	char* hobbies;
+	unsigned char hobbies;
 	char* description;
 }user;
 
@@ -109,7 +109,7 @@ void MainMenu(user* account, user*** malesptr,node** head,int* malescounter) {
 		switch (option)
 		{
 		case 1:
-			exit(1);
+			
 			break;
 		case 2:
 			DeleteUser(account,malesptr,head,malescounter);
@@ -229,6 +229,8 @@ user* AddUser(user*** males, node** head,int* malescounter) {
 	newuser= (user*)(malloc(sizeof(user)));
 	node* after;
 	user** temp;
+	int k;
+	unsigned char MaskHobbies;
 	if (newuser == NULL)
 	{
 		exit(1);
@@ -281,8 +283,18 @@ user* AddUser(user*** males, node** head,int* malescounter) {
 			scanf("%c", &dummy);//gets the enter
 			fgets (buffer,8,stdin);
 			hobbies(buffer);
-			newuser->hobbies = (char*)malloc(sizeof(char)*(strlen(buffer)));
-			strcpy(newuser->hobbies, buffer);
+			newuser->hobbies = 0;
+			for (k = 0; k < 7; k += 2)
+			{
+				MaskHobbies = 1;
+				while (buffer[k] != '1')
+				{
+					MaskHobbies <<= 1;
+					buffer[k] -= 1;
+				}
+				newuser->hobbies ^= MaskHobbies;
+			}
+			printf("%d\n", newuser->hobbies);
 			break;
 		case 8:
 			printf("Choose a password (attention-minimum 3 characters):\n");
@@ -346,7 +358,6 @@ user* AddUser(user*** males, node** head,int* malescounter) {
 		return newuser;
 	}
 }
-
 node*FindPlace(char *new_last_name, node* head) {
 
 	node *prev = NULL;
@@ -379,6 +390,8 @@ void readFile(user*** males, user**females,node** head,int* malescounter){
 	int pointer_index;
 	user** temp=NULL;
 	node* after;
+	int k = 0;
+	unsigned char MaskHobbies;
 	
 	fpointer = fopen("input.txt", "r");
 	if (fpointer == NULL)
@@ -464,15 +477,24 @@ void readFile(user*** males, user**females,node** head,int* malescounter){
 				break;
 
 			case 7:
-				ptr->hobbies = (char*)malloc(sizeof(char)*(strlen(str)));
-				if (ptr->hobbies == NULL) {
-					exit(1);
-
+				
+				ptr->hobbies = 0;
+				for (k = 0; k < 7; k += 2)
+				{
+					MaskHobbies = 1;
+					while (str[k] != '1')
+					{
+						MaskHobbies <<= 1;
+						str[k] -= 1;
+					}
+					ptr->hobbies ^= MaskHobbies;
+					
 				}
-				strcpy(ptr->hobbies, str);
+				printf("%d\n", ptr->hobbies);
 				break;
 
 			case 8:
+				
 				ptr->description = (char*)malloc(sizeof(char)*(strlen(str)));
 				if (ptr->description == NULL) {
 					exit(1);
