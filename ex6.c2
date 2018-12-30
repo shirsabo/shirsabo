@@ -39,6 +39,144 @@ user* LogIn(user** malesptr, node* head,int * flag, int malescounter);
 user* CheckWomen(node* head,char* password, char*username);
 user* CheckMen(user**malesptr, char*password,char*username,int malescounter);
 void DeleteUser(user*account, user***malesptr, node**head,int* malescounter);
+void FindMatch(user*account, user**malesptr, node**head, int malescounter);
+void PrintHobbies(unsigned char hobbies);
+int StringToDecimal(char* age);
+int CheckHobbies(unsigned char current, unsigned char account);
+
+void PrintHobbies(unsigned char hobbies) {
+	int mask = 1;
+	int counter = 0;
+	int i;
+	for (i = 1; i <= 8; i++) 
+	{
+		if (mask & hobbies)
+		{
+			switch (i)
+			{
+			case BASEBALL:
+					printf(" Baseball");
+					counter++;
+				
+				break;
+			case BASKETBALL:
+				printf(" Basketball");
+				counter++;
+				break;
+			case BICYCLE:
+				printf(" Bicycle");
+				counter++;
+				break;
+			case BOOKS:
+				printf(" Books");
+				counter++;
+				break;
+			case DRAWING:
+				printf(" Drawing");
+				counter++;
+				break;
+			case GYM:
+				printf(" Gym");
+				counter++;
+				break;
+			case MOVIES:
+				printf(" Movies");
+				counter++;
+				break;
+			case POETRY:
+				printf(" Poetry");
+				counter++;
+				break;
+
+			}
+			if (counter !=4)
+			{
+				printf(",");
+			}
+				
+		}
+
+		mask <<= 1;
+	}
+}
+int StringToDecimal(char* age) {
+	int a;
+	int b;
+	if (strlen(age) == 3)
+	{
+		return 100;//maximum age
+	}
+	else
+	{
+		//in order to get to the decimal value
+		a = age[0] - '0';
+		b = age[1] - '0';
+		return (10 * a) + b;
+	}
+}
+int CheckHobbies(unsigned char current,unsigned char account) {
+	int counter = 0;
+	int mask = 1;
+	int i;
+	for (i = 1; i <= 8; i++) {
+		if (((mask & current)!=0) && ((mask & account)!=0))
+		{
+			counter++;
+		 }
+		mask <<= 1;
+		if (counter == 2) {
+			return 1;
+		}
+		
+	}
+	return 0;
+}
+void FindMatch(user*account, user**malesptr, node**head, int malescounter) {
+	int MinimumAge;
+	int MaxAge;
+	char dummy;
+	int i;
+	printf("Please choose ages range:\n");
+	scanf("%d%c%d", &MinimumAge, &dummy, &MaxAge);
+	if (account->gender == 'M')
+	{
+		node* current = *head;  // Initialize current 
+		while (current != NULL)
+		{
+			if ((StringToDecimal(current->data->age) >= MinimumAge) && (StringToDecimal(current->data->age) <= MaxAge))
+			{
+				if (CheckHobbies(current->data->hobbies, account->hobbies)) {
+					printf("Name:%s %s Age: %s Hobbies: "
+						, current->data->firstname, current->data->lastname, current->data->age);
+					PrintHobbies(current->data->hobbies);
+					printf("\n");
+					printf("Description: %s\n", current->data->description);
+				}
+			}
+			current = current->next;
+		}
+		return;
+	}
+	else if (account->gender == 'F')
+	{
+		for (i = 0; i < malescounter; i++)
+		{
+			if ((StringToDecimal(malesptr[i]->age) >= MinimumAge) && (StringToDecimal(malesptr[i]->age) <= MaxAge))
+			{
+				if (CheckHobbies(malesptr[i]->hobbies, account->hobbies))
+				{
+					printf("Name:%s %s Age: %s Hobbies: "
+						, malesptr[i]->firstname, malesptr[i]->lastname, malesptr[i]->age);
+					PrintHobbies(malesptr[i]->hobbies);
+					printf("\n");
+					printf("Description: %s\n", malesptr[i]->description);
+
+				}
+
+			}
+		}
+	}
+}
 void DeleteUser(user*account, user***malesptr, node**head,int* malescounter) {
 	int i;
 	if (account->gender == 'F')
@@ -104,12 +242,12 @@ void MainMenu(user* account, user*** malesptr,node** head,int* malescounter) {
 		printf("please choose an option:\n");
 		printf("1 - Find a match\n");
 		printf("2 - found love, DELETE me\n");
-		printf("3 -  Log out\n");
+		printf("3 - Log out\n");
 		scanf("%d", &option);
 		switch (option)
 		{
 		case 1:
-			
+			FindMatch(account, *malesptr, head,*malescounter);
 			break;
 		case 2:
 			DeleteUser(account,malesptr,head,malescounter);
