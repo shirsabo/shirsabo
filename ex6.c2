@@ -44,6 +44,168 @@ void PrintHobbies(unsigned char hobbies);
 int StringToDecimal(char* age);
 int CheckHobbies(unsigned char current, unsigned char account);
 
+void output(user**malesptr, node*head,int malescounter) {
+	FILE* fpointer;
+	fpointer = fopen("output.txt", "w");
+	int i;
+	if (fpointer == NULL)
+	{
+		exit(1);
+	}
+ //males
+	for (i = 0; i < malescounter; i++)
+	{
+		fprintf(fpointer, "%s", malesptr[i]->userid);
+		fprintf(fpointer, ";");
+		fprintf(fpointer, "%s", malesptr[i]->firstname);
+		fprintf(fpointer, ";");
+		fprintf(fpointer, "%s", malesptr[i]->lastname);
+		fprintf(fpointer, ";");
+		fprintf(fpointer, "%s", malesptr[i]->age);
+		fprintf(fpointer, ";");
+		fputc(malesptr[i]->gender, fpointer);
+		fprintf(fpointer, ";");
+		fprintf(fpointer, "%s", malesptr[i]->username);
+		fprintf(fpointer, ";");
+		fprintf(fpointer, "%s", malesptr[i]->password);
+		fprintf(fpointer, ";");
+		int mask = 1;
+		int counter = 0;
+		int j = 1;
+		for (j = 1; j <= 8; j++)
+		{
+			if (mask & (malesptr[i]->hobbies))
+			{
+				switch (j)
+				{
+				case BASEBALL:
+					fprintf(fpointer, "1");
+					counter++;
+
+					break;
+				case BASKETBALL:
+					fprintf(fpointer, "2");
+					counter++;
+					break;
+				case BICYCLE:
+					fprintf(fpointer, "3");
+					counter++;
+					break;
+				case BOOKS:
+					fprintf(fpointer, "4");
+					counter++;
+					break;
+				case DRAWING:
+					fprintf(fpointer, "5");
+					counter++;
+					break;
+				case GYM:
+					fprintf(fpointer, "6");
+					counter++;
+					break;
+				case MOVIES:
+					fprintf(fpointer, "7");
+					counter++;
+					break;
+				case POETRY:
+					fprintf(fpointer, "8");
+					counter++;
+					break;
+
+				}
+				if (counter != 4)
+				{
+					fprintf(fpointer, ",");
+				}
+
+			}
+
+			mask <<= 1;
+		}
+		fprintf(fpointer, ";");
+		fprintf(fpointer, "%s", malesptr[i]->description);
+		fprintf(fpointer, "\n");
+	}
+		//females
+		node* current = head;  // Initialize current 
+		while (current != NULL)
+		{
+			fprintf(fpointer, "%s", current->data->userid);
+			fprintf(fpointer, ";");
+			fprintf(fpointer, "%s", current->data->firstname);
+			fprintf(fpointer, ";");
+			fprintf(fpointer, "%s", current->data->lastname);
+			fprintf(fpointer, ";");
+			fprintf(fpointer, "%s", current->data->age);
+			fprintf(fpointer, ";");
+			fputc(current->data->gender, fpointer);
+			fprintf(fpointer, ";");
+			fprintf(fpointer, "%s", current->data->username);
+			fprintf(fpointer, ";");
+			fprintf(fpointer, "%s", current->data->password);
+			fprintf(fpointer, ";");
+			int mask = 1;
+			int counter = 0;
+			int j = 1;
+			for (j = 1; j <= 8; j++)
+			{
+				if (mask & (current->data->hobbies))
+				{
+					switch (j)
+					{
+					case BASEBALL:
+						fprintf(fpointer, "1");
+						counter++;
+
+						break;
+					case BASKETBALL:
+						fprintf(fpointer, "2");
+						counter++;
+						break;
+					case BICYCLE:
+						fprintf(fpointer, "3");
+						counter++;
+						break;
+					case BOOKS:
+						fprintf(fpointer, "4");
+						counter++;
+						break;
+					case DRAWING:
+						fprintf(fpointer, "5");
+						counter++;
+						break;
+					case GYM:
+						fprintf(fpointer, "6");
+						counter++;
+						break;
+					case MOVIES:
+						fprintf(fpointer, "7");
+						counter++;
+						break;
+					case POETRY:
+						fprintf(fpointer, "8");
+						counter++;
+						break;
+
+					}
+					if (counter != 4)
+					{
+						fprintf(fpointer, ",");
+					}
+
+				}
+
+				mask <<= 1;
+			}
+			fprintf(fpointer, ";");
+			fprintf(fpointer, "%s", current->data->description);
+			fprintf(fpointer, "\n");
+			current = current->next;
+		}
+		fclose(fpointer);
+	}
+	
+
 void PrintHobbies(unsigned char hobbies) {
 	int mask = 1;
 	int counter = 0;
@@ -151,6 +313,7 @@ void FindMatch(user*account, user**malesptr, node**head, int malescounter) {
 					PrintHobbies(current->data->hobbies);
 					printf("\n");
 					printf("Description: %s\n", current->data->description);
+					printf("\n");
 				}
 			}
 			current = current->next;
@@ -170,6 +333,7 @@ void FindMatch(user*account, user**malesptr, node**head, int malescounter) {
 					PrintHobbies(malesptr[i]->hobbies);
 					printf("\n");
 					printf("Description: %s\n", malesptr[i]->description);
+					printf("\n");
 
 				}
 
@@ -692,6 +856,7 @@ void readFile(user*** males, user**females,node** head,int* malescounter){
 			
 
 		}
+		fclose(fpointer);
 
 	}
 
@@ -753,7 +918,7 @@ int main()
 
 			break;
 		case 3:
-			exit(1);
+			output(malesPtr,head,malescounter);
 			break;
 		default:
 			printf("Bad choice, please try again\n");
