@@ -316,8 +316,6 @@ user* LogIn(user** malesptr, node* head, int *flag,int malescounter)
 	int i;
 	printf("Please enter your username:\n");
 	scanf("%s", username);
-	//printf("Please enter your password:\n");
-	//scanf("%s", password);
 	existwomen=CheckWomen(HeadToWomen, password, username);
 	if (existwomen != NULL)
 	{	printf("Please enter your password:\n");
