@@ -1,14 +1,13 @@
 import biuoop.GUI;
 import biuoop.DrawSurface;
 import biuoop.Sleeper;
-
 import java.util.Random;
 import java.awt.Color;
 public class Ball {
     private Point center;
     private int radius;
     private java.awt.Color color;
-    private Velocity vel;
+    public Velocity vel;
 
     public Ball(double x, double y, int r, java.awt.Color color) {
         this(new Point(x, y), r, color);
@@ -19,8 +18,8 @@ public class Ball {
         this.center = center;
         this.radius = r;
         this.color = color;
+        this.vel= new Velocity(0,0);
     }
-
     // accessors
     public int getX() {
         return (int) (this.center).getX();
@@ -58,21 +57,25 @@ public class Ball {
     }
 
     public void moveOneStep() {
+        double x1= this.center.getX();
+        double y1 =this.center.getY();
+        if (y1 + this.radius >= 200) {
+            this.vel.dy = -this.vel.dy;
+        }
+        if (x1 + this.radius >= 200) {
+            this.vel.dx= -this.vel.dx;
+        }
+        if   (y1 - this.radius <= 0){
+            if (this.vel.getDy()<0) {
+                this.vel.dy = -this.vel.dy;
+            }
+        }
+        if (x1 - this.radius <= 0){
+            if (this.vel.getDx()<0) {
+                this.vel.dx = -this.vel.dx;
+            }
+        }
         this.center = this.getVelocity().applyToPoint(this.center);
     }
 
-    public static void main(String[] args) {
-        GUI gui = new GUI("title", 200, 200);
-        Sleeper sleeper = new Sleeper();
-        Ball ball = new Ball(0, 0, 30, java.awt.Color.BLACK);
-        ball.setVelocity(2, 2);
-        while (true) {
-            ball.moveOneStep();
-            DrawSurface d = gui.getDrawSurface();
-            ball.drawOn(d);
-            gui.show(d);
-            sleeper.sleepFor(50);  // wait for 50 milliseconds.
-        }
-
-    }
 }
