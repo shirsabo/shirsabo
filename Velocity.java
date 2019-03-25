@@ -1,28 +1,52 @@
-
-// Velocity specifies the change in position on the `x` and the `y` axes.
+/**
+ * @author Shir sabo
+ **/
 public class Velocity {
-    public double dx;
-    public double dy;
-    public Velocity(double dx, double dy){
+    private double dx;
+    private double dy;
+    /**
+     * Constructor.
+     * @param dx double
+     * @param dy double
+     */
+    public Velocity(double dx, double dy) {
         this.dx = dx;
         this.dy = dy;
     }
+    /**
+     * Sets velocity according to angle and speed.
+     * @param angle double
+     * @param speed double
+     * @return Output: velocity
+     */
     public static Velocity fromAngleAndSpeed(double angle, double speed) {
-        double dx = speed * Math.cos(angle) ;
-        double dy = speed * Math.sin(angle);
+        double dx = speed * Math.sin(Math.toRadians(angle));
+        double dy = -speed * Math.cos(Math.toRadians(angle));
         return new Velocity(dx, dy);
     }
-    // Take a point with position (x,y) and return a new point
-    // with position (x+dx, y+dy)
-    public Point applyToPoint(Point p){
+    /**
+     * Take a point with position (x,y) and return a new point with position (x+dx, y+dy).
+     * @param p Point
+     * @return Output: Point
+     */
+    public Point applyToPoint(Point p) {
         double x = p.getX();
         double y = p.getY();
         Point p1 = new Point(x + this.dx, y + this.dy);
         return p1;
     }
+    /**
+     * Returns the dx.
+     * @return Output: double
+     */
     public double getDx() {
+
         return this.dx;
     }
+    /**
+     * Returns the dy.
+     * @return Output: double
+     */
     public double getDy() {
         return this.dy;
     }
