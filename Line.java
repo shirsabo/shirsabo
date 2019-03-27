@@ -31,6 +31,7 @@ public class Line {
     public Line(double x1, double y1, double x2, double y2) {
         this(new Point(x1, y1), new Point(x2, y2));
         if (x1 == x2) {
+            this.gradient = -17987;
           this.flag = -1;
           return;
         } else {
@@ -99,36 +100,54 @@ public class Line {
     public Point intersectionWith(Line other) {
         double intersecX;
         double intersecY;
-        if ((this.gradient == other.gradient) || ((this.flag == -1) && (other.flag == -1))) {
+        if (((this.flag == -1) && (other.flag == -1)) || ((this.gradient == other.gradient))) {
             if ((start.equals(other.last)) || (start.equals(other.start))) {
+
                  return start;
             }
             if ((last.equals(other.start)) || (last.equals(other.last))) {
+
                 return last;
 
               }
+
             return null;
         }
         double thisX = this.start.getX();
         if ((this.flag == -1) || (other.flag == -1)) {
             if ((this.flag == -1) && (other.flag == 0)) {
                 if ((other.start.getX() < this.start.getX()) && (other.last.getX() < this.start.getX())) {
-                    return null;
 
+                    return null;
                 }
                 if ((other.start.getX() > this.start.getX()) && (other.last.getX() > this.start.getX())) {
+
                     return null;
                 }
-                return new Point(thisX, other.gradient * thisX + other.intersectingY);
+                Point p1 = new Point(thisX, other.gradient * thisX + other.intersectingY);
+                if (p1.isPointOnLine(this)){
+
+                return p1;
+                }
+
+                return null;
             }
             if ((this.flag == 0) && (other.flag == -1)) {
                 if ((this.start.getX() < other.start.getX()) && (this.last.getX() < other.start.getX())) {
+
                     return null;
                 }
                 if ((this.start.getX() > other.start.getX()) && (this.last.getX() > other.start.getX())) {
+
                     return null;
                 }
-                return new Point(thisX, this.gradient * thisX + this.intersectingY);
+                Point p2 = new Point(other.start.getX(), this.gradient * other.start.getX() + this.intersectingY);
+                if (p2.isPointOnLine(other)){
+
+                    return p2;
+                }
+
+                return null;
             }
         }
         // Isolating x from the equation y1 = m1x +b1 y2 = m2x +b2
@@ -144,9 +163,11 @@ public class Line {
         // Checks whether the point is the on both of the lines
         if ((starting.distance(intersec) <= this.length) && ((ending).distance(intersec) <= this.length)) {
             if ((starting1.distance(intersec) <= other.length) && (ending2.distance(intersec) <= other.length)) {
+
                 return intersec;
             }
         }
+
         return null;
     }
     /**
@@ -164,23 +185,24 @@ public class Line {
     }
     public Point closestIntersectionToStartOfLine(Rectangle rect){
         List<Point> l1 = new ArrayList<Point>();
-        l1 = rect.intersectionPoints(this);
-        int n = l1.size();
+        l1.addAll(0, rect.intersectionPoints(this));
+        int n = l1.size(), indexOfInter = 0;
+        double minDis = 0;
         double[] dis = new double[n];
         if (n == 0) {
+
             return null;
         }
         for (int i = 0; i < n; i++) {
             dis[i] = (l1.get(i)).distance(start);
         }
-        if (n == 1){
-            return l1.get(0);
-        }
-        else if(n==2){
-            if (dis[0] < dis[1]){
-                return l1.get(0);
+        minDis = dis[0];
+        for (int i = 0; i < n; i++) {
+            if(dis[i] < minDis) {
+                minDis = dis[i];
+                indexOfInter = i;
             }
         }
-        return l1.get(1);
+        return l1.get(indexOfInter);
     }
 }

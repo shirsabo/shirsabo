@@ -13,10 +13,9 @@ public class Rectangle {
         this.upperleftPoint = upperLeft;
         this.widthOfRec = width;
         this.heightOfrec = height;
-    }
-    public void RectangleLines(Point upperLeft, double width, double height){
+
         double upperX =  upperLeft.getX();
-        double upperY = upperLeft.getX();
+        double upperY = upperLeft.getY();
         this.horizonal1 = new Line(upperX ,upperY,upperX + width, upperY);
         this.horizonal2 = new Line(upperX ,upperY + height,upperX + width, upperY + height);
         this.vertical1 = new Line(upperX,upperY,upperX,upperY+ height);
@@ -26,17 +25,20 @@ public class Rectangle {
     // with the specified line.
     public java.util.List intersectionPoints(Line line){
         List <Point> l1 = new ArrayList<Point>();
-        if (vertical1.intersectionWith(line)!= null){
+        if (this.vertical1.intersectionWith(line)!= null){
             l1.add(vertical1.intersectionWith(line));
         }
-        if (vertical2.intersectionWith(line)!= null){
+        if (this.vertical2.intersectionWith(line)!= null){
             l1.add(vertical2.intersectionWith(line));
+
         }
-        if (horizonal1.intersectionWith(line)!= null){
+        if (this.horizonal1.intersectionWith(line)!= null){
             l1.add(horizonal1.intersectionWith(line));
+
         }
-        if (horizonal2.intersectionWith(line)!= null){
+        if (this.horizonal2.intersectionWith(line)!= null){
             l1.add(horizonal2.intersectionWith(line));
+
         }
         return l1;
     }

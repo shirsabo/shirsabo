@@ -53,6 +53,10 @@ public class Point {
     public boolean isPointOnLine(Line lineIn){
         Point starting = lineIn.start();
         Point ending = lineIn.end();
+        double x1= starting.distance(this);
+        double x2 = lineIn.length();
+        double x3 = ending.distance(this);
+        double x4= lineIn.length();
 
         if ((starting.distance(this) <= lineIn.length()) && (ending.distance(this) <= lineIn.length())){
             return true;

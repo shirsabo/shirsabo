@@ -1,7 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
 public class GameEnvironment {
-    private List<Collidable> collidables = new ArrayList<Collidable>();
+    private List<Collidable> collidables;
+    public  GameEnvironment() {
+        this.collidables = new ArrayList<>();
+    }
     public void addCollidable(Collidable c) {
         collidables.add(c);
     }
