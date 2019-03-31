@@ -2,7 +2,7 @@ import biuoop.DrawSurface;
 /**
  * @author Shir sabo
  **/
-public class Ball {
+public class Ball implements Sprite {
     private Point center;
     private int radius;
     private java.awt.Color color;
@@ -49,8 +49,8 @@ public class Ball {
        this.length = lengthIn;
        this.height = heightIn;
     }
-    public void setGame(GameEnvironment game) {
-        this.game = game;
+    public void setGame(GameEnvironment gameIn) {
+        this.game = gameIn;
     }
     /**
      * Accessor to x.
@@ -90,6 +90,10 @@ public class Ball {
         surface.setColor(this.color);
         surface.fillCircle(this.getX(), this.getY(), this.radius);
     }
+    public void timePassed() {
+        checkGameCollidables();
+        // Updates the ball's location
+    }
     /**
      * Sets velocity.
      * @param v velocity
@@ -118,107 +122,94 @@ public class Ball {
      * Creates the ball's next stop according to it's boundaries in space.
      */
     public void moveOneStep() {
-        //double x1 = this.center.getX();
-        //double y1 = this.center.getY();
-       // double dx = this.vel.getDx();
-       // double dy = this.vel.getDy();
-        //if the ball is in bottom
-       // if (y1 + this.vel.getDy() + this.radius >= this.height) {
-         //   if (this.vel.getDy() > 0) {
-           //     this.vel = new Velocity(dx, -dy);
-           //     dy = -dy;
-       //     }
-       // }
-        //if the ball is on the right wall
-      //  if (x1 + this.vel.getDx() + this.radius >= this.length) {
-     //       if (this.vel.getDx() > 0) {
-       //         this.vel = new Velocity(-dx, dy);
-        //        dx = -dx;
-        //    }
-      //  }
-        //if the ball is on the ceiling
-     //   if  (y1 + this.vel.getDy() - this.radius <= this.yLeftUpperCorner) {
-     //       if (this.vel.getDy() < 0) {
-       //         this.vel = new Velocity(dx, -dy);
-        //        dy = -dy;
-
-      //      }
-     //   }
-        //if the ball is on the left wall
-      //  if (x1 + this.vel.getDx() - this.radius <= this.xLeftUpperCorner) {
-       //     if (this.vel.getDx() < 0) {
-        //        this.vel = new Velocity(-dx, dy);
-        //        dx = -dx;
-        //    }
-      //  }
         checkGameCollidables();
         // Updates the ball's location
-
-
     }
+    /**
+     * Sets the trajectory to the ball
+     * @param trajectory1 DrawSurface
+     */
     public void setTrajectory(Line trajectory1) {
         this.trajectory = trajectory1;
     }
+    /**
+     * Checks for  collidables, and sets the new velocity according to the case.
+     */
     public void checkGameCollidables() {
-        GameEnvironment game = this.game;
         Point start = this.center;
-        Point temp = this.center;
-      //  Velocity temp1 = this.getVelocity();
-      //  while(PointBetweenboundries(temp)) {
-     //      temp = temp1.applyToPoint(temp);
-     //   }
-    //    Point end = temp;
-        double x1=start.getX();
-        double y1=start.getY();
-        double x2= x1+this.vel.getDx();
-        double y2= y1+this.vel.getDy();
-        Line trajectory = new Line(x1,y1,x2,y2);
-        int flag1=0;
-        int flag2=0;
-        setTrajectory(trajectory);
+        double x1 = start.getX();
+        double y1 = start.getY();
+        double x2 = x1 + this.vel.getDx();
+        double y2 = y1 + this.vel.getDy();
+        Line trajectory1 = new Line(x1, y1, x2, y2);
+        int flag1 = 0;
+        int flag2 = 0;
+        setTrajectory(trajectory1);
+        //gets the closest collision possible
         CollisionInfo info = game.getClosestCollision(this.trajectory);
-        if(info!= null) {
+        //if there is collision
+        if (info != null) {
             Point p = info.collisionPoint();
-            if(p.getX()== info.collisionObject().getCollisionRectangle().getVertical1().start().getX()) {
-                this.center =new Point(p.getX()-this.radius-1,p.getY());
-                flag1=1;
+            //checks where the collision is  relation to the rectangle
+            // left vertical
+            if (p.getX() == info.collisionObject().getCollisionRectangle().getVertical1().start().getX()) {
+                this.center = new Point(p.getX() - this.radius - 1, p.getY());
+                flag1 = 1;
             }
-            if(p.getX()== info.collisionObject().getCollisionRectangle().getVertical2().start().getX()) {
-                this.center =new Point(p.getX()+this.radius+1,p.getY());
-                flag2=1;
+            //right vertical
+            if (p.getX() == info.collisionObject().getCollisionRectangle().getVertical2().start().getX()) {
+                this.center = new Point(p.getX() + this.radius + 1, p.getY());
+                flag2 = 1;
             }
-            if(p.getY()== info.collisionObject().getCollisionRectangle().getHorizonal1().start().getY()) {
-                this.center =new Point(p.getX(),p.getY()-this.radius-1);
-                if(flag1==1){
-                    this.center =new Point(p.getX()-this.radius-1,p.getY());
+            //upper horizonal
+            if (p.getY() == info.collisionObject().getCollisionRectangle().getHorizonal1().start().getY()) {
+                this.center = new Point(p.getX(), p.getY() - this.radius - 1);
+                if (flag1 == 1) {
+                    this.center = new Point(p.getX() - this.radius - 1, p.getY());
                 }
             }
-            if(p.getY()== info.collisionObject().getCollisionRectangle().getHorizonal2().start().getY()) {
-                this.center =new Point(p.getX(),p.getY()+this.radius+1);
-                if(flag2==1){
-                    this.center =new Point(p.getX()+this.radius+1,p.getY());
+            //lower horizonal
+            if (p.getY() == info.collisionObject().getCollisionRectangle().getHorizonal2().start().getY()) {
+                this.center = new Point(p.getX(), p.getY() + this.radius + 1);
+                if (flag2 == 1) {
+                    this.center = new Point(p.getX() + this.radius + 1, p.getY());
                 }
             }
-
+            // in order to change the ball's velocity
             Collidable c = info.collisionObject();
             this.vel = c.hit(p, this.vel);
-
-        }
-        else{
+            //move the ball ordinary
+        } else {
             this.center = this.getVelocity().applyToPoint(this.center);
         }
     }
-    public boolean PointBetweenboundries(Point p) {
-        double x= p.getX();
-        double y =p.getY();
-       if((x >= this.xLeftUpperCorner) && (x <= this.xLeftUpperCorner + length)) {
-           if((y >= this.yLeftUpperCorner ) && (y <= this.yLeftUpperCorner + height)) {
+    /**
+     * Checks whether the point is out of boundries.
+     * @param p Point
+     * @return Output: boolean
+     */
+    public boolean pointBetweenBoundries(Point p) {
+        double x = p.getX();
+        double y = p.getY();
+       if ((x >= this.xLeftUpperCorner) && (x <= this.xLeftUpperCorner + length)) {
+           if ((y >= this.yLeftUpperCorner) && (y <= this.yLeftUpperCorner + height)) {
                return true;
            }
        }
         return false;
     }
-    public void setgame(GameEnvironment game){
-        this.game = game;
+    /**
+     * Sets the game that the ball is bouncing in.
+     * @param game1 game
+     */
+    public void setgame(GameEnvironment game1) {
+        this.game = game1;
+    }
+    /**
+     * Adds a ball to the sprites.
+     * @param g game
+     */
+    public void addToGame(Game g) {
+        g.addSprite(this);
     }
 }

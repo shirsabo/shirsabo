@@ -1,8 +1,6 @@
 import biuoop.DrawSurface;
 import biuoop.GUI;
 import biuoop.Sleeper;
-import org.w3c.dom.css.Rect;
-
 import java.awt.*;
 public class test {
     public static void main(String[] args) {
@@ -40,14 +38,14 @@ public class test {
         //rec2.RectangleLines(p2,100,100);
         //rec3.RectangleLines(p3,100,100);
         //rec3.RectangleLines(p4,100,100);
-        Block block1 = new Block (rec1);
-        Block block2 = new Block (rec2);
-        Block block3 = new Block (rec3);
-        Block block4 = new Block (rec4);
-        Block block5 = new Block (rec5);
-        Block block6 = new Block (rec6);
-        Block block7 = new Block (rec7);
-        Block block8 = new Block (rec8);
+        Block block1 = new Block (rec1,Color.DARK_GRAY);
+        Block block2 = new Block (rec2,Color.DARK_GRAY);
+        Block block3 = new Block (rec3,Color.DARK_GRAY);
+        Block block4 = new Block (rec4,Color.DARK_GRAY);
+        Block block5 = new Block (rec5,Color.WHITE);
+        Block block6 = new Block (rec6,Color.YELLOW);
+        Block block7 = new Block (rec7,Color.CYAN);
+        Block block8 = new Block (rec8,Color.ORANGE);
         game.addCollidable(block1);
         game.addCollidable(block2);
         game.addCollidable(block3);
@@ -60,7 +58,8 @@ public class test {
         ball.setVelocity(10,10);
         while (true) {
             ball.setBoundries(0, 0, 500, 500);
-            ball.moveOneStep();
+            ball.timePassed();
+            // Updates the ball's location
             //creates draw surface
             DrawSurface d = gui.getDrawSurface();
             // draws the ball on the surface

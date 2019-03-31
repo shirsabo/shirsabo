@@ -190,7 +190,6 @@ public class Line {
         double minDis = 0;
         double[] dis = new double[n];
         if (n == 0) {
-
             return null;
         }
         for (int i = 0; i < n; i++) {

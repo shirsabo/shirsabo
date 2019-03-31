@@ -1,9 +1,12 @@
 import java.util.ArrayList;
 import java.util.List;
+/**
+ * @author Shir sabo
+ **/
 public class GameEnvironment {
     private List<Collidable> collidables;
     public  GameEnvironment() {
-        this.collidables = new ArrayList<>();
+        this.collidables = new ArrayList<Collidable>();
     }
     public void addCollidable(Collidable c) {
         collidables.add(c);
@@ -26,22 +29,21 @@ public class GameEnvironment {
             p = trajectory.closestIntersectionToStartOfLine(r);
             if (p != null) {
                 collidables1.add(p);
-                dis.add ((collidables1.get(j)).distance(trajectory.start()));
+                dis.add((collidables1.get(j)).distance(trajectory.start()));
                 collidablesrec.add(collidables.get(i));
                 j = j + 1;
             }
         }
-        if (collidablesrec.size() == 0)
-        {
+        if (collidablesrec.size() == 0) {
             return  null;
         }
         int iMin = 0;
         for (int i = 1; i < collidables1.size(); i++) {
-         if(dis.get(iMin)>dis.get(i)) {
+         if (dis.get(iMin) > dis.get(i)) {
              iMin = iMin + 1;
          }
         }
-        CollisionInfo info = new CollisionInfo(collidables1.get(iMin),collidablesrec.get(iMin));
+        CollisionInfo info = new CollisionInfo(collidables1.get(iMin), collidablesrec.get(iMin));
         return info;
     }
 }

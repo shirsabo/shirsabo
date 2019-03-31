@@ -1,3 +1,6 @@
+/**
+ * @author Shir sabo
+ **/
 public class CollisionInfo {
     private Collidable c;
     private Point colissionP;
