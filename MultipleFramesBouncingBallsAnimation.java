@@ -114,10 +114,10 @@ public class MultipleFramesBouncingBallsAnimation {
             for (int i = 0; i < args.length; i++) {
                 if (i < (args.length / 2)) {
                     balls[i].setBoundries(50, 50, 500, 500);
-                    balls[i].moveOneStep();
+                    balls[i].checkGameCollidables();
                 } else {
                     balls[i].setBoundries(450, 450, 600, 600);
-                    balls[i].moveOneStep();
+                    balls[i].checkGameCollidables();
                 }
 
                 balls[i].drawOn(d);

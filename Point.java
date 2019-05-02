@@ -44,7 +44,6 @@ public class Point {
         }
         return false;
     }
-
     /**
      * Return the x value of this point.
      *

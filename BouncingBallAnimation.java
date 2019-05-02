@@ -20,7 +20,7 @@ public class BouncingBallAnimation {
         ball.setVelocity(v);
         while (true) {
             ball.setBoundries(0, 0, 200, 200);
-            ball.moveOneStep();
+            ball.checkGameCollidables();
             //creates draw surface
             DrawSurface d = gui.getDrawSurface();
             // draws the ball on the surface

@@ -1,9 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
-
 /**
+ * The type Line.
+ *
  * @author Shir sabo
- **/
+ */
 public class Line {
     private Point start;
     private Point last;
@@ -13,8 +14,9 @@ public class Line {
     private int flag;
     /**
      * Constrauctor.
+     *
      * @param startIn point
-     * @param endIn point
+     * @param endIn   point
      */
     public Line(Point startIn, Point endIn) {
         this.start = startIn;
@@ -29,33 +31,51 @@ public class Line {
      * @param y2 double
      */
     public Line(double x1, double y1, double x2, double y2) {
+        //calls to the other constructor
         this(new Point(x1, y1), new Point(x2, y2));
         if (x1 == x2) {
-            this.gradient = -17987;
+            //if the line is vertical
+            this.gradient = -17989977;
           this.flag = -1;
           return;
         } else {
         this.flag = 0;
         }
+        //calculates the gradient
         this.gradient = (y2 - y1) / (x2 - x1);
         this.intersectingY = y1 - gradient * x1;
     }
     /**
      * Returns the length of the line.
-     * @return Output: double
+     *
+     * @return Output : double
      */
     public double getGradient() {
         return this.gradient;
     }
+
+    /**
+     * Gets collision y.
+     *
+     * @return the collision y
+     */
     public double getCollisionY() {
         return this.intersectingY;
     }
+
+    /**
+     * Length double.
+     *
+     * @return the double
+     */
     public double length() {
         return this.length;
     }
+
     /**
      * Returns the middle point of the line.
-     * @return Output: Point
+     *
+     * @return Output : Point
      */
     public Point middle() {
         double x1 = this.start.getX();
@@ -68,85 +88,76 @@ public class Line {
     }
     /**
      * Returns the start point of the line.
-     * @return Output: Point
+     *
+     * @return Output : Point
      */
     public Point start() {
         return this.start;
     }
     /**
      * Returns the end point of the line.
-     * @return Output: Point
+     *
+     * @return Output : Point
      */
     public Point end() {
         return this.last;
     }
+
     /**
      * Returns wether two lines intersec.
+     *
      * @param other line
-     * @return Output: boolean
+     * @return Output : boolean
      */
     public boolean isIntersecting(Line other) {
         if (intersectionWith(other) == null) {
             return false;
         }
         return true;
-
     }
     /**
      * Returns the intersection point if the lines intersect and null otherwise.
      * @param other line
-     * @return Output: point or null
+     * @return Output : point or null
      */
     public Point intersectionWith(Line other) {
         double intersecX;
         double intersecY;
         if (((this.flag == -1) && (other.flag == -1)) || ((this.gradient == other.gradient))) {
             if ((start.equals(other.last)) || (start.equals(other.start))) {
-
                  return start;
             }
             if ((last.equals(other.start)) || (last.equals(other.last))) {
-
                 return last;
-
               }
-
             return null;
         }
         double thisX = this.start.getX();
         if ((this.flag == -1) || (other.flag == -1)) {
             if ((this.flag == -1) && (other.flag == 0)) {
                 if ((other.start.getX() < this.start.getX()) && (other.last.getX() < this.start.getX())) {
-
                     return null;
                 }
                 if ((other.start.getX() > this.start.getX()) && (other.last.getX() > this.start.getX())) {
-
                     return null;
                 }
                 Point p1 = new Point(thisX, other.gradient * thisX + other.intersectingY);
-                if (p1.isPointOnLine(this)){
-
+                if (p1.isPointOnLine(this)) {
                 return p1;
                 }
-
                 return null;
             }
             if ((this.flag == 0) && (other.flag == -1)) {
                 if ((this.start.getX() < other.start.getX()) && (this.last.getX() < other.start.getX())) {
-
                     return null;
                 }
                 if ((this.start.getX() > other.start.getX()) && (this.last.getX() > other.start.getX())) {
-
                     return null;
                 }
                 Point p2 = new Point(other.start.getX(), this.gradient * other.start.getX() + this.intersectingY);
-                if (p2.isPointOnLine(other)){
-
+                if (p2.isPointOnLine(other)) {
                     return p2;
                 }
-
                 return null;
             }
         }
@@ -163,17 +174,16 @@ public class Line {
         // Checks whether the point is the on both of the lines
         if ((starting.distance(intersec) <= this.length) && ((ending).distance(intersec) <= this.length)) {
             if ((starting1.distance(intersec) <= other.length) && (ending2.distance(intersec) <= other.length)) {
-
                 return intersec;
             }
         }
-
         return null;
     }
     /**
      * Returns whether the lines are equal.
+     *
      * @param other line
-     * @return Output: boolean
+     * @return Output : boolean
      */
     public boolean equals(Line other) {
         if ((this.start.equals(other.start) || this.start.equals(other.last))) {
@@ -183,7 +193,12 @@ public class Line {
         }
         return false;
     }
-    public Point closestIntersectionToStartOfLine(Rectangle rect){
+    /**
+     * Closest intersection to start of line point.
+     * @param rect the rect
+     * @return the point
+     */
+    public Point closestIntersectionToStartOfLine(Rectangle rect) {
         List<Point> l1 = new ArrayList<Point>();
         l1.addAll(0, rect.intersectionPoints(this));
         int n = l1.size(), indexOfInter = 0;
@@ -197,7 +212,7 @@ public class Line {
         }
         minDis = dis[0];
         for (int i = 0; i < n; i++) {
-            if(dis[i] < minDis) {
+            if (dis[i] < minDis) {
                 minDis = dis[i];
                 indexOfInter = i;
             }

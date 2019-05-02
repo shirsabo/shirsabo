@@ -93,7 +93,7 @@ public class MultipleBouncingBallsAnimation {
                 DrawSurface d = gui.getDrawSurface();
                 for (int i = 0; i < args.length; i++) {
                     // the ball changes position
-                    balls[i].moveOneStep();
+                    balls[i].checkGameCollidables();
                     balls[i].drawOn(d);
                 }
                 sleeper.sleepFor(50);  // wait for 50 milliseconds.

@@ -1,7 +1,10 @@
 import biuoop.DrawSurface;
+
 /**
+ * The type Ball.
+ *
  * @author Shir sabo
- **/
+ */
 public class Ball implements Sprite {
     private Point center;
     private int radius;
@@ -13,22 +16,26 @@ public class Ball implements Sprite {
     private int height;
     private GameEnvironment game;
     private Line trajectory;
+
     /**
      * Constructor.
-     * @param x double
-     * @param y double
-     * @param r int
+     *
+     * @param x     double
+     * @param y     double
+     * @param r     int
      * @param color java.awt.Color
      */
     public Ball(double x, double y, int r, java.awt.Color color) {
         // calls to the other constructor
         this(new Point(x, y), r, color);
     }
+
     /**
      * Constructor.
+     *
      * @param center point
-     * @param r int
-     * @param color java.awt.Color
+     * @param r      int
+     * @param color  java.awt.Color
      */
     public Ball(Point center, int r, java.awt.Color color) {
         this.center = center;
@@ -36,12 +43,14 @@ public class Ball implements Sprite {
         this.color = color;
         this.vel = new Velocity(0, 0);
     }
+
     /**
      * Sets boundries to the ball's movemet.
+     *
      * @param xLeftUpperCornerIn double
      * @param yLeftUpperCornerIn double
-     * @param lengthIn int
-     * @param heightIn int
+     * @param lengthIn           int
+     * @param heightIn           int
      */
     public void setBoundries(double xLeftUpperCornerIn, double yLeftUpperCornerIn, int lengthIn, int heightIn) {
        this.xLeftUpperCorner =  xLeftUpperCornerIn;
@@ -49,34 +58,47 @@ public class Ball implements Sprite {
        this.length = lengthIn;
        this.height = heightIn;
     }
+    /**
+     * The gsme the ball is in.
+     *
+     * @param gameIn the game in
+     */
     public void setGame(GameEnvironment gameIn) {
         this.game = gameIn;
     }
+
     /**
      * Accessor to x.
-     * @return Output: int
+     *
+     * @return Output : int
      */
     public int getX() {
         return (int) (this.center).getX();
     }
+
     /**
      * Accessor to y.
-     * @return Output: int
+     *
+     * @return Output : int
      */
     public int getY() {
 
         return (int) (this.center).getY();
     }
+
     /**
      * Accessor to radius.
-     * @return Output: int
+     *
+     * @return Output : int
      */
     public int getSize() {
         return this.radius;
     }
+
     /**
      * Accessor to the ball's color.
-     * @return Output: java.awt.Color
+     *
+     * @return Output : java.awt.Color
      */
     public java.awt.Color getColor() {
 
@@ -90,48 +112,52 @@ public class Ball implements Sprite {
         surface.setColor(this.color);
         surface.fillCircle(this.getX(), this.getY(), this.radius);
     }
+    /**
+     * takes care of the ball's next step.
+     */
     public void timePassed() {
         checkGameCollidables();
         // Updates the ball's location
     }
     /**
      * Sets velocity.
+     *
      * @param v velocity
      */
     public void setVelocity(Velocity v) {
 
         this.vel = v;
     }
+
     /**
      * Sets velocity.
+     *
      * @param dx velocity
      * @param dy velocity
      */
     public void setVelocity(double dx, double dy) {
         this.vel = new Velocity(dx, dy);
     }
+
     /**
      * Accessor to velocity.
-     * @return Output: velocity
+     *
+     * @return Output : velocity
      */
     public Velocity getVelocity() {
 
         return this.vel;
     }
+
     /**
-     * Creates the ball's next stop according to it's boundaries in space.
-     */
-    public void moveOneStep() {
-        checkGameCollidables();
-        // Updates the ball's location
-    }
-    /**
-     * Sets the trajectory to the ball
+     * Sets the trajectory to the ball.
+     *
      * @param trajectory1 DrawSurface
      */
     public void setTrajectory(Line trajectory1) {
         this.trajectory = trajectory1;
     }
+
     /**
      * Checks for  collidables, and sets the new velocity according to the case.
      */
@@ -139,11 +165,15 @@ public class Ball implements Sprite {
         Point start = this.center;
         double x1 = start.getX();
         double y1 = start.getY();
+        //next step
         double x2 = x1 + this.vel.getDx();
         double y2 = y1 + this.vel.getDy();
+        //creates a trajectory
         Line trajectory1 = new Line(x1, y1, x2, y2);
+        //if there has to be changes both in dx and dy
         int flag1 = 0;
         int flag2 = 0;
+        //sets the trajectory
         setTrajectory(trajectory1);
         //gets the closest collision possible
         CollisionInfo info = game.getClosestCollision(this.trajectory);
@@ -180,13 +210,29 @@ public class Ball implements Sprite {
             this.vel = c.hit(p, this.vel);
             //move the ball ordinary
         } else {
-            this.center = this.getVelocity().applyToPoint(this.center);
+            double x = this.center.getX();
+            double y = this.center.getY();
+            if (!pointBetweenBoundries(this.trajectory.end())) {
+                if (this.trajectory.end().getX() <= this.xLeftUpperCorner) {
+                    x = 10;
+                }
+                if (this.trajectory.end().getX() >= this.xLeftUpperCorner + this.length) {
+                    x = 490;
+                }
+                if (this.trajectory.end().getY() >= this.yLeftUpperCorner + this.height) {
+                    y = y - 20;
+                }
+              this.center = new Point(x, y);
+            } else {
+                this.center = this.getVelocity().applyToPoint(this.center);
+            }
         }
     }
     /**
      * Checks whether the point is out of boundries.
+     *
      * @param p Point
-     * @return Output: boolean
+     * @return Output : boolean
      */
     public boolean pointBetweenBoundries(Point p) {
         double x = p.getX();
@@ -200,6 +246,7 @@ public class Ball implements Sprite {
     }
     /**
      * Sets the game that the ball is bouncing in.
+     *
      * @param game1 game
      */
     public void setgame(GameEnvironment game1) {
@@ -207,6 +254,7 @@ public class Ball implements Sprite {
     }
     /**
      * Adds a ball to the sprites.
+     *
      * @param g game
      */
     public void addToGame(Game g) {
