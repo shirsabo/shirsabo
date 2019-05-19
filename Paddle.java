@@ -1,5 +1,11 @@
+package components;
 import biuoop.DrawSurface;
+import graphics.Rectangle;
+import graphics.Point;
 import biuoop.KeyboardSensor;
+
+//import java.awt.*;
+
 /**
  * The type Paddle.
  *
@@ -90,9 +96,10 @@ public class Paddle implements Sprite, Collidable {
      * Returns the hit.
      * @param collisionPoint DrawSurface
      * @param currentVelocity Velocity
+     * @param hitter Ball
      * @return the hit
      */
-    public Velocity hit(Point collisionPoint, Velocity currentVelocity) {
+    public Velocity hit(Ball hitter, Point collisionPoint, Velocity currentVelocity) {
         double collisionX = collisionPoint.getX();
         double colisionY = collisionPoint.getY();
         double dx = currentVelocity.getDx();

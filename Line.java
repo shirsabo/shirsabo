@@ -1,5 +1,7 @@
+package graphics;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * The type Line.
  *

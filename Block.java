@@ -1,14 +1,20 @@
+package components;
 import biuoop.DrawSurface;
+import graphics.Rectangle;
+import graphics.Point;
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 /**
  * The type Block.
  *
  * @author Shir sabo
  */
-public class Block implements Collidable, Sprite {
+public class Block implements Collidable, Sprite, HitNotifier {
     private Rectangle rect;
     private java.awt.Color color;
     private Integer hitsOnBlock;
+    private List<HitListener> hitListeners;
     /**
      * Add to game.
      *
@@ -17,6 +23,14 @@ public class Block implements Collidable, Sprite {
     public void addToGame(Game g) {
         g.addCollidable(this);
         g.addSprite(this);
+    }
+    /**
+     * Remove from game.
+     * @param game game
+     */
+    public void removeFromGame(Game game) {
+        game.removeCollidable(this);
+        game.removeSprite(this);
     }
     /**
      * Not in use yet.
@@ -31,6 +45,7 @@ public class Block implements Collidable, Sprite {
     public Block(Rectangle rectangle1, java.awt.Color color) {
         this.rect = rectangle1;
         this.color = color;
+        this.hitListeners = new ArrayList<HitListener>();
     }
     /**
      * @return the rectangle
@@ -38,19 +53,18 @@ public class Block implements Collidable, Sprite {
     public Rectangle getCollisionRectangle() {
         return this.rect;
     }
-    // Notify the object that we collided with it at collisionPoint with
-    // a given velocity.
-    // The return is the new velocity expected after the hit (based on
-    // the force the object inflicted on us).
     /**
-     * Changes the ball's velocity.
+     * Notify the object that we collided with it at collisionPoint with
+     * a given velocity.
+     * The return is the new velocity expected after the hit (based on
+     * the force the object inflicted on us).
      *
      * @param collisionPoint the rectangle 1
      * @param currentVelocity the color
+     * @param hitter the ball
      @return the velocity
      */
-    public Velocity hit(Point collisionPoint, Velocity currentVelocity) {
-        this.newhit();
+    public Velocity hit(Ball hitter, Point collisionPoint, Velocity currentVelocity) {
         double collisionX = collisionPoint.getX();
         double collisionY = collisionPoint.getY();
         double dx = currentVelocity.getDx();
@@ -71,7 +85,22 @@ public class Block implements Collidable, Sprite {
         if (collisionY == newRec.getHorizonal2().start().getY()) {
             newVel = new Velocity(dx, -dy);
         }
+        this.notifyHit(hitter);
+        this.newhit();
         return newVel;
+    }
+    /**
+     * which will be called whenever a hit() occurs,
+     * and notifiers all of the registered HitListener objects by calling their hitEvent method.
+     * @param hitter ball
+     */
+    private void notifyHit(Ball hitter) {
+        // Make a copy of the hitListeners before iterating over them.
+        List<HitListener> listeners = new ArrayList<HitListener>(this.hitListeners);
+        // Notify all listeners about a hit event:
+        for (HitListener hl : listeners) {
+            hl.hitEvent(this, hitter);
+        }
     }
     /**
      * Draws on surface.
@@ -131,5 +160,33 @@ public class Block implements Collidable, Sprite {
             return;
         }
         this.hitsOnBlock = this.hitsOnBlock - 1;
+    }
+    /**
+     *  Add hl as a listener to hit events.
+     * @param hl HitListener
+     */
+   public void addHitListener(HitListener hl) {
+      this.hitListeners.add(hl);
+   }
+    /**
+     *  Remove hl from the list of listeners to hit events.
+     * @param hl HitListener
+     */
+    public void removeHitListener(HitListener hl) {
+       this.hitListeners.remove(hl);
+    }
+    /**
+     *  Remove hl from the list of listeners to hit events.
+     * @return Integer
+     */
+    public Integer getHitPoints() {
+        return this.hitsOnBlock;
+    }
+    /**
+     *  Getter for color.
+     * @return Integer
+     */
+    public Color getColor() {
+        return this.color;
     }
 }

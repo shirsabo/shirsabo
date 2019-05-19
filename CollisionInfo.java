@@ -1,3 +1,7 @@
+package components;
+
+import graphics.Point;
+
 /**
  * The type Collision info.
  *

@@ -1,3 +1,4 @@
+package components;
 import biuoop.DrawSurface;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,11 +26,20 @@ public class SpriteCollection {
         sprites.add(s);
     }
     /**
+     * Delete sprite.
+     *
+     * @param s the s
+     */
+    public void deleteSprite(Sprite s) {
+        this.sprites.remove(s);
+    }
+    /**
      * Notify all time passed.
      */
 // call timePassed() on all sprites.
     public void notifyAllTimePassed() {
-        for (Sprite s : this.sprites) {
+        List<Sprite> spriters = new ArrayList<Sprite>(this.sprites);
+        for (Sprite s : spriters) {
             s.timePassed();
         }
     }

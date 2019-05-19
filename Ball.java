@@ -1,4 +1,9 @@
+package components;
 import biuoop.DrawSurface;
+import graphics.Line;
+import graphics.Point;
+//import graphics.Rectangle;
+
 
 /**
  * The type Ball.
@@ -207,7 +212,7 @@ public class Ball implements Sprite {
             }
             // in order to change the ball's velocity
             Collidable c = info.collisionObject();
-            this.vel = c.hit(p, this.vel);
+            this.vel = c.hit(this, p, this.vel);
             //move the ball ordinary
         } else {
             double x = this.center.getX();
@@ -259,5 +264,13 @@ public class Ball implements Sprite {
      */
     public void addToGame(Game g) {
         g.addSprite(this);
+    }
+    /**
+     * removes a ball to the sprites.
+     *
+     * @param g game
+     */
+    public void removeFromGame(Game g) {
+        g.removeSprite(this);
     }
 }

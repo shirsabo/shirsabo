@@ -1,3 +1,4 @@
+package graphics;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class Rectangle {
      */
 // Return a (possibly empty) List of intersection points
     // with the specified line.
-    public java.util.List intersectionPoints(Line line) {
+    public java.util.List<Point> intersectionPoints(Line line) {
         List<Point> l1 = new ArrayList<Point>();
         if (this.vertical1.intersectionWith(line) != null) {
             l1.add(vertical1.intersectionWith(line));

@@ -1,3 +1,8 @@
+package components;
+import graphics.Line;
+import graphics.Point;
+import graphics.Rectangle;
+
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -19,7 +24,15 @@ public class GameEnvironment {
      * @param c the c
      */
     public void addCollidable(Collidable c) {
-        collidables.add(c);
+        this.collidables.add(c);
+    }
+    /**
+     * Delete collidable.
+     *
+     * @param c the c
+     */
+    public void deleteCollidable(Collidable c) {
+        this.collidables.remove(c);
     }
     /**
      // Assume an object moving from line.start() to line.end().
@@ -39,13 +52,14 @@ public class GameEnvironment {
         Point p;
         int j = 0;
         //goes through all the collidables possible
-        for (int i = 0; i < collidables.size(); i++) {
-            r = collidables.get(i).getCollisionRectangle();
+        List<Collidable> colliders = new ArrayList<Collidable>(this.collidables);
+        for (int i = 0; i < colliders.size(); i++) {
+            r = colliders.get(i).getCollisionRectangle();
             p = trajectory.closestIntersectionToStartOfLine(r);
             if (p != null) {
                 collidables1.add(p);
                 dis.add((collidables1.get(j)).distance(trajectory.start()));
-                collidablesrec.add(collidables.get(i));
+                collidablesrec.add(colliders.get(i));
                 j = j + 1;
             }
         }
@@ -62,5 +76,12 @@ public class GameEnvironment {
         }
         CollisionInfo info = new CollisionInfo(collidables1.get(iMin), collidablesrec.get(iMin));
         return info;
+    }
+    /**
+     * Returns colidables.
+     * @return  list of colidables
+     */
+    public List<Collidable> getColidables() {
+    return this.collidables;
     }
 }

@@ -1,3 +1,7 @@
+package components;
+
+import graphics.Point;
+
 /**
  * The type Velocity.
  *
@@ -25,10 +29,10 @@ public class Velocity {
      * @param speed double
      * @return Output : velocity
      */
-    public static Velocity fromAngleAndSpeed(double angle, double speed) {
-        double dx = speed * Math.sin(Math.toRadians(angle));
-        double dy = -speed * Math.cos(Math.toRadians(angle));
-        return new Velocity(dx, dy);
+    public Velocity fromAngleAndSpeed(double angle, double speed) {
+        double dx1 = speed * Math.sin(Math.toRadians(angle));
+        double dy1 = -speed * Math.cos(Math.toRadians(angle));
+        return new Velocity(dx1, dy1);
     }
 
     /**

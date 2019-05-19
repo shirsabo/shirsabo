@@ -1,3 +1,4 @@
+package graphics;
 /**
  * The type Point.
  *
