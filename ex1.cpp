@@ -3,7 +3,7 @@
 //
 #include "ex1.h"
 //constructors--------------------------------------------
-BinaryOperator::BinaryOperator(Expression *right, Expression *left) : right(right), left(left) {
+BinaryOperator::BinaryOperator(Expression *left, Expression *right) : right(right), left(left) {
 }
 
 Plus::Plus(Expression *right, Expression *left) : BinaryOperator(right, left) {}
@@ -19,23 +19,30 @@ UnaryOperator::UnaryOperator(Expression *exp) : exp(exp) {}
 UPlus::UPlus(Expression *exp) : UnaryOperator(exp) {}
 
 UMinus::UMinus(Expression *exp) : UnaryOperator(exp) {}
+Variable::Variable( string s, double val) {
+    this->name = s;
+    this->value= val;
+};
+
+Value::Value(const double val) : val(val) {}
+
 //calculate()-------------------------------------------------
 double Plus:: calculate() {
-    return left->calculate()+right->calculate();
+    return this->getLeft()->calculate()+ this->getRight()->calculate();
 };
 double Mul:: calculate() {
-    return left->calculate()*right->calculate();
+    return this->getLeft()->calculate()* this->getRight()->calculate();
 };
 double Div:: calculate() {
-    double leftRes= left->calculate();
-    double righttRes= right->calculate();
+    double leftRes= this->getLeft()->calculate();
+    double righttRes= this->getRight()->calculate();
     if ( righttRes==0) {
         cout<<"divide by zero"<<endl;
     }
     return leftRes /righttRes;
 };
 double Minus:: calculate() {
-    return left->calculate()-right->calculate();
+    this->getLeft()->calculate()-this->getRight()->calculate();
 };
 double Value:: calculate() {
     return val;
@@ -44,38 +51,44 @@ double Variable::calculate() {
     return value;
 };
 double UMinus:: calculate() {
-    return  -1 * exp->calculate();
+    return  -1 *this->getExp()->calculate();
 };
 double UPlus:: calculate() {
-    return  1 * exp->calculate();
+    return  1 * this->getExp()->calculate();
 };
 //Variable---------------------------------
- Variable Variable:: operator ++() {
+Expression& Variable:: operator ++() {
      this->increase();
      return  *this;
 };
- void Variable::increase() {
-     this->value++;
- };
-void Variable::decrease()  {
-    this->value--;
+Expression& Variable:: operator ++(int n) {
+    Expression& e = *(new Variable(this->name,this->value++));
+    return  e;
 };
-Variable Variable:: operator--() {
+Expression& Variable:: operator--() {
     this->decrease();
     return *this;
 };
-Variable Variable:: operator +=(double val) {
+Expression& Variable:: operator +=(double val) {
     this->value+= val;
     return *this;
 };
-Variable Variable:: operator =(double val) {
+Expression& Variable:: operator =(double val) {
     this->value = val;
     return *this;
 };
-Variable::Variable( string s, double val) {
-    this->name = s;
-    this->value= val;
+void Variable::increase() {
+    this->value++;
 };
+void Variable::decrease()  {
+    this->value--;
+};
+Expression* BinaryOperator::getLeft() { return left;}
+Expression* BinaryOperator::getRight() { return right;}
+double Value::getVal() { return val;}
+string Variable::getName() { return name;}
+double  Variable::getVal() { return value;}
+Expression* UnaryOperator::getExp() { return exp;}
 BinaryOperator::~BinaryOperator() {
 
 }
@@ -113,5 +126,4 @@ UMinus::~UMinus() {
 }
 Variable::~Variable() {
 }
-
 //-------------------------------------------
