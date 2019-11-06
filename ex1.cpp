@@ -2,6 +2,8 @@
 // Created by osboxes on 11/4/19.
 //
 #include "ex1.h"
+#include <algorithm>
+#include<iostream>
 //constructors--------------------------------------------
 BinaryOperator::BinaryOperator(Expression *left, Expression *right) : right(right), left(left) {
 }
@@ -92,7 +94,6 @@ Expression* UnaryOperator::getExp() { return exp;}
 BinaryOperator::~BinaryOperator() {
 
 }
-
 Plus::~Plus() {
 
 }
@@ -125,5 +126,39 @@ UMinus::~UMinus() {
 
 }
 Variable::~Variable() {
+}
+void Interpeter::setVariables(string s) {
+    string buffer = s;
+    string delimiter = ";";
+    size_t pos = 0;
+    string token;
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+        token = s.substr(0, pos);
+        this->g1.push_back(token);
+        std::cout << token << std::endl;
+        s.erase(0, pos + delimiter.length());
+    }
+    this->g1.push_back(s);
+    this->insertMap();
+
+}
+void Interpeter::setPlacement(string s) {
+    string left;
+    string right;
+    string buffer = s;
+    string delimiter = "=";
+    size_t pos = 0;
+    string token;
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+        token = s.substr(0, pos);
+        left=token;
+        s.erase(0, pos + delimiter.length());
+    }
+    right=s;
+    this->vars.insert(std::pair<string,string>(left,right));
+}
+void Interpeter::insertMap(){
+    for(std::size_t i=0; i<g1.size(); ++i)
+        setPlacement(g1[i]);
 }
 //-------------------------------------------
