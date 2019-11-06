@@ -202,11 +202,54 @@ int size= str.size();
 int check=0;
 for(int i=0;i<size;i++) {
    char c = str[i];
+   std::string s(1,c);
   check = checkChar(c);
+    switch(check) {
+        //Alphabetic
+        case 1 :
+            if (vars.find(s)==vars.end()){
+                cout<<"variable not found"<<endl;
+                return nullptr;
+            }//then its really a var!
+            queueOfStrokes.push(s);
+            //number
+        case 2 :
+            queueOfStrokes.push(s);
+            //operator
+        case 3:
+            if(stackOfStrokes.empty()||s=="("||s==")"){
+                if(s=="("){   stackOfStrokes.push(s);}
+                else{
+                    //tommorow you will do it
+                }
+            }
+           else if(s=="+"||s=="-") {
+                if (stackOfStrokes.top() == "(") {
+                    stackOfStrokes.push(s);
+                } else {
+                    //later
+                }
+            }else if(s=="/"||s=="*") {
+                stackOfStrokes.push(s);
+            }
+            cout<<"number"<<endl;
 
+        default:cout<<"error with prefix"<<endl;
+    }
 }
 }
 int Interpeter::checkChar(char c) {
+    // CHECKING FOR ALPHABET
+    if ((c >= 65 && c <= 90)
+        || (c >= 97 && c <= 122)) {
+        return 1;
+    }else if (c >= 48 && c <= 57){
+        return 2;
+    }
+    // operatorr
+    else if((c!=44&&c!=46) && c >=40 && c <=47) {
+        return 3;
+    }
 
 }
 //-------------------------------------------------------------------------
