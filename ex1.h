@@ -6,18 +6,23 @@
 #include <string>
 #include <iostream>
 #include "Expression.h"
+#include<map>
+#include <vector>
+
 class BinaryOperator: public Expression {
 public:
     BinaryOperator(Expression *right, Expression *left);
     virtual ~BinaryOperator();
     // right and left expressions
+    Expression*getLeft();
+    Expression*getRight();
+private:
     Expression * right;
     Expression * left;
 };
 class Plus: public BinaryOperator{
 
 public:
-
     Plus(Expression *right, Expression *left);
 
     double calculate();
@@ -55,31 +60,39 @@ public:
 };
 class Value: public Expression {
 public:
-    double calculate();
+    Value(const double val);
 
+    double calculate();
     virtual ~Value();
+    double getVal();
 
 private:
     const double val;
 };
 class Variable: public Expression {
 public:
-    string name;
-    double value;
-   Variable   operator ++ () ;
-   Variable operator --() ;
-   Variable   operator +=(double  var) ;
-  Variable   operator =(double  var) ;
+   Expression&  operator ++ () ;
+   Expression& operator++(int);
+    Expression& operator --() ;
+    Expression&   operator +=(double  var) ;
+    Expression&    operator =(double  var) ;
   void   increase ();
   void decrease();
    Variable(string , double );
     ~Variable();
     double calculate();
+    string getName();
+    double getVal();
+private:
+    string name;
+    double value;
 };
 class UnaryOperator: public Expression {
 public:
     UnaryOperator(Expression *exp);
     virtual ~UnaryOperator();
+    Expression * getExp();
+private:
     Expression *exp;
 };
 
@@ -98,5 +111,16 @@ public:
     double calculate();
 
     virtual ~UMinus();
+};
+class Interpeter {
+public:
+
+    void setVariables(const string);
+    void setPlacement(string s);
+    void insertMap();
+private:
+    map<string,string > vars;
+    vector<string> g1;
+
 };
 #endif //PROJECT_EXPRESSION_H
