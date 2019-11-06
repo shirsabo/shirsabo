@@ -2,7 +2,6 @@
 // Created by osboxes on 11/4/19.
 //
 #include "ex1.h"
-#include <algorithm>
 #include<iostream>
 //constructors--------------------------------------------
 BinaryOperator::BinaryOperator(Expression *left, Expression *right) : right(right), left(left) {
@@ -198,4 +197,16 @@ void Interpeter::varsCreator() {
         this->variables.push_back(*(new Variable(it->first,value)));
     }
 }
-//-------------------------------------------
+Expression* Interpeter::interpret(string str) {
+int size= str.size();
+int check=0;
+for(int i=0;i<size;i++) {
+   char c = str[i];
+  check = checkChar(c);
+
+}
+}
+int Interpeter::checkChar(char c) {
+
+}
+//-------------------------------------------------------------------------
