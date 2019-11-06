@@ -140,7 +140,7 @@ void Interpeter::setVariables(string s) {
     }
     this->g1.push_back(s);
     this->insertMap();
-
+    varsCreator();
 }
 void Interpeter::setPlacement(string s) {
     string left;
@@ -155,10 +155,47 @@ void Interpeter::setPlacement(string s) {
         s.erase(0, pos + delimiter.length());
     }
     right=s;
-    this->vars.insert(std::pair<string,string>(left,right));
+    if(isnumber(s)){
+        this->vars.insert(std::pair<string,string>(left,right));
+
+    }
+    else{
+        cout<<"error giving value!"<<endl;
+        return;
+    }
+
 }
 void Interpeter::insertMap(){
     for(std::size_t i=0; i<g1.size(); ++i)
         setPlacement(g1[i]);
+}
+bool Interpeter::isnumber(string str) {
+    int flag=  0;
+    int x = int(str[0]);
+    for(int i=0;i<str.length();i++)
+        if(x>=48&&x<=57){
+            continue;
+        }else  if ((i>0)&&(const char*)str[i]=="."&&flag==0)
+                int flag = 1;
+            else{
+                cout<<"false"<<endl;
+                return false;
+            }
+
+    cout<<"true"<<endl;
+    return true;
+}
+map<string,string>Interpeter::getVars() {
+    return this->vars;
+}
+void Interpeter::varsCreator() {
+    map<string, string>::iterator it;
+    it=this->getVars().begin();
+    for (int j= 0; j<this->vars.size(); j++,it++)
+    {
+        double value = stod(it->second);
+        cout<<value<<endl;
+        this->variables.push_back(*(new Variable(it->first,value)));
+    }
 }
 //-------------------------------------------
