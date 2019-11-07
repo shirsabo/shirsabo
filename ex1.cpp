@@ -296,13 +296,33 @@ bool Interpeter::checkUnary(string s) {
     string::iterator it ;
     for (it=s.begin();it!=s.end();it++,i++) {
         if ((*it =='-')||(*it=='+')) {
-            it++;
-            if (*it!='/0'){
-                if (*it =='(') {
-                    //
+            if (it==s.begin()){
+                if (*it=='-'){
+                    *it='$';
+                    continue;
+                }
+                *it='&';
+                continue;
+
+            }
+            else {
+                it--;
+                if (*it==40){
+                    it++;
+                    if (*it=='-'){
+                        cout<<"unary minus works!"<<endl;
+                        *it='$';
+                        cout<<s<<endl;
+                        continue;
+                    }
+                    *it='&';
+                    cout<<"unary plus works!"<<endl;
+                    continue;
+                }
+                else{
+                    continue;
                 }
             }
-
         }
     }
 
