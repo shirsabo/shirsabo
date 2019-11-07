@@ -3,6 +3,8 @@
 //
 #include "ex1.h"
 #include<iostream>
+#include <regex>
+
 //constructors--------------------------------------------
 BinaryOperator::BinaryOperator(Expression *left, Expression *right) : right(right), left(left) {
 }
@@ -212,31 +214,61 @@ for(int i=0;i<size;i++) {
                 return nullptr;
             }//then its really a var!
             queueOfStrokes.push(s);
+            break;
             //number
         case 2 :
             queueOfStrokes.push(s);
+            break;
             //operator
         case 3:
-            if(stackOfStrokes.empty()||s=="("||s==")"){
-                if(s=="("){   stackOfStrokes.push(s);}
-                else{
-                    //tommorow you will do it
-                }
-            }
-           else if(s=="+"||s=="-") {
-                if (stackOfStrokes.top() == "(") {
-                    stackOfStrokes.push(s);
-                } else {
-                    //later
-                }
-            }else if(s=="/"||s=="*") {
+            if(s=="("){
                 stackOfStrokes.push(s);
-            }
-            cout<<"number"<<endl;
+                break;
 
+            }else if(s==")"){
+                while(!stackOfStrokes.empty()&&stackOfStrokes.top()!="("){
+                    queueOfStrokes.push(stackOfStrokes.top());
+                    stackOfStrokes.pop();
+                }
+                if(!stackOfStrokes.empty()&&((stackOfStrokes.top()=="("))){
+                    stackOfStrokes.pop();
+                    break;
+                }
+                queueOfStrokes.push(stackOfStrokes.top());
+                stackOfStrokes.pop();
+                break;
+            }
+            if(stackOfStrokes.top()=="("){
+                stackOfStrokes.push(s);
+                break;
+            }
+            //if the current is higher precedence than top
+            if(precedence(s)){
+                stackOfStrokes.push(s);
+                break;
+            }
+            if(!stackOfStrokes.empty()){
+                queueOfStrokes.push(stackOfStrokes.top());
+                stackOfStrokes.pop();
+                stackOfStrokes.push(s);
+                break;
+            }else {
+               stackOfStrokes.push(s) ;
+            }
+           break;
         default:cout<<"error with prefix"<<endl;
     }
+
 }
+    while(!stackOfStrokes.empty()){
+        queueOfStrokes.push(stackOfStrokes.top());
+        stackOfStrokes.pop();
+    }
+    while(!queueOfStrokes.empty()){
+        cout<<queueOfStrokes.front();
+        queueOfStrokes.pop();
+    }
+    cout<<" "<<endl;
 }
 int Interpeter::checkChar(char c) {
     // CHECKING FOR ALPHABET
@@ -246,10 +278,34 @@ int Interpeter::checkChar(char c) {
     }else if (c >= 48 && c <= 57){
         return 2;
     }
-    // operatorr
+    // operator
     else if((c!=44&&c!=46) && c >=40 && c <=47) {
         return 3;
     }
 
+}
+int Interpeter::precedence(string s)  {
+    if (s[0] == '*' || s[0] == '/') return 0;
+    return 1;
+}
+bool Interpeter::comparePrecedence(string current,string top){
+    return precedence(top) < precedence(current);
+}
+bool Interpeter::checkUnary(string s) {
+    int i=0;
+    string::iterator it ;
+    for (it=s.begin();it!=s.end();it++,i++) {
+        if ((*it =='-')||(*it=='+')) {
+            it++;
+            if (*it!='/0'){
+                if (*it =='(') {
+                    //
+                }
+            }
+
+        }
+    }
+
+   //to do
 }
 //-------------------------------------------------------------------------
