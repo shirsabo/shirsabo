@@ -128,13 +128,14 @@ UMinus::~UMinus() {
 }
 Variable::~Variable() {
 }
-void Interpeter::setVariables(string s) {
+void  Interpreter::setVariables(string s) {
     string buffer = s;
     string delimiter = ";";
     size_t pos = 0;
     string token;
     while ((pos = s.find(delimiter)) != std::string::npos) {
         token = s.substr(0, pos);
+        // Check if element 22 exists in vector
         this->g1.push_back(token);
         std::cout << token << std::endl;
         s.erase(0, pos + delimiter.length());
@@ -143,7 +144,7 @@ void Interpeter::setVariables(string s) {
     this->insertMap();
     varsCreator();
 }
-void Interpeter::setPlacement(string s) {
+void  Interpreter::setPlacement(string s) {
     string left;
     string right;
     string buffer = s;
@@ -155,6 +156,12 @@ void Interpeter::setPlacement(string s) {
         left=token;
         s.erase(0, pos + delimiter.length());
     }
+    for (std::map<string,string>::iterator it=vars.begin(); it!=vars.end(); ++it){
+        if(it->first == token){
+            it->second =s;
+            return;
+        }
+    }
     right=s;
     if(isnumber(s)){
         this->vars.insert(std::pair<string,string>(left,right));
@@ -164,30 +171,30 @@ void Interpeter::setPlacement(string s) {
         return;
     }
 }
-void Interpeter::insertMap(){
+void  Interpreter::insertMap(){
     for(std::size_t i=0; i<g1.size(); ++i)
         setPlacement(g1[i]);
 }
-bool Interpeter::isnumber(string str) {
+bool  Interpreter::isnumber(string str) {
     int flag=  0;
     int x = int(str[0]);
     for(int i=0;i<str.length();i++)
         if(x>=48&&x<=57){
             continue;
-        }else  if ((i>0)&&(const char*)str[i]=="."&&flag==0)
-                int flag = 1;
-            else{
-                cout<<"false"<<endl;
-                return false;
-            }
-
-    cout<<"true"<<endl;
+        }else  if ((i>0)&&(const char*)str[i]=="."&&flag==0){
+            int flag = 1;
+            continue;
+        }
+        else{
+            cout<<"false"<<endl;
+            return false;
+        }
     return true;
 }
-map<string,string>Interpeter::getVars() {
+map<string,string> Interpreter::getVars() {
     return this->vars;
 }
-void Interpeter::varsCreator() {
+void  Interpreter::varsCreator() {
     map<string, string>::iterator it;
     it=this->getVars().begin();
     for (int j= 0; j<this->vars.size(); j++,it++)
@@ -197,26 +204,51 @@ void Interpeter::varsCreator() {
         this->variables.push_back(*(new Variable(it->first,value)));
     }
 }
-Expression* Interpeter::interpret(string str) {
-    str =checkUnary(str);
+Expression*  Interpreter::interpret(string str) {
+
+    str = checkUnary(str);
 int size= str.size();
 int check=0;
 for(int i=0;i<size;i++) {
+    string buffer;
+    int flag= 0;
    char c = str[i];
+   char c1;
    std::string s(1,c);
   check = checkChar(c);
     switch(check) {
         //Alphabetic
         case 1 :
-            if (vars.find(s)==vars.end()){
+            buffer.push_back(c);
+            i++;
+            while((i<size)&&(checkChar(str[i])!=3&&(str[i]!='('&&str[i]!=')'))){
+                buffer.push_back(str[i]);
+                i++;
+            }
+            i--;
+            if (vars.find(buffer)==vars.end()){
                 cout<<"variable not found"<<endl;
                 return nullptr;
             }//then its really a var!
-            queueOfStrokes.push(s);
+            queueOfStrokes.push(buffer);
             break;
             //number
         case 2 :
-            queueOfStrokes.push(s);
+            buffer.push_back(c);
+            i++;
+            while(flag<=1&&(i<size)&&(checkChar(str[i])!=3&&str[i]!='('&&str[i]!=')')) {
+                if(str[i]=='.'){
+                    flag ++;
+                }
+                buffer.push_back(str[i]);
+                i++;
+            }
+            if (flag>1){
+                cout<<"error with number"<<endl;
+                return nullptr;
+            }
+            i--;
+            queueOfStrokes.push(buffer);
             break;
             //Binary operator
         case 3:
@@ -278,9 +310,10 @@ for(int i=0;i<size;i++) {
         stackOfStrokes.pop();
     }
     node * t = buildTree(this->queueOfStrokes);
-    readTreePreorder(t);
+    cout<<"buildtre check"<<endl;
+    return readTreePreorder(t);
 }
-int Interpeter::checkChar(char c) {
+int Interpreter::checkChar(char c) {
     if(c==36||c==38){
         return 4;
     }
@@ -297,7 +330,7 @@ int Interpeter::checkChar(char c) {
     }
 
 }
-int Interpeter::precedence(string s)  {
+int  Interpreter::precedence(string s)  {
     //unarry operator!
     if(s=="+"||s=="-"){
         return 1;
@@ -312,13 +345,13 @@ int Interpeter::precedence(string s)  {
         return 0;
     }
 }
-bool Interpeter::comparePrecedence(string current,string top){
+bool  Interpreter::comparePrecedence(string current,string top){
     if(!stackOfStrokes.empty()){
         return precedence(top) < precedence(current);
     }
     return true;
 }
-string Interpeter::checkUnary(string s) {
+string  Interpreter::checkUnary(string s) {
     int i=0;
     string::iterator it ;
     for (it=s.begin();it!=s.end();it++,i++) {
@@ -360,7 +393,7 @@ string Interpeter::checkUnary(string s) {
    //to do
     return s;
 }
-node* Interpeter::buildTree(queue<string>q) {
+node*  Interpreter::buildTree(queue<string>q) {
     node * node0, *node1, *node2;
     stack<node *> st;
     int temp = q.size();
@@ -408,39 +441,46 @@ node* Interpeter::buildTree(queue<string>q) {
     st.pop();
     return node0;
 }
-node* Interpeter::buildNode(string s){
+node*  Interpreter::buildNode(string s){
     node *temp = new node;
     temp->left = temp->right = NULL;
     temp->value = s;
     return temp;
 }
-Expression* Interpeter::readTreePreorder(node *n)
-{
-    if(n)
-    {
-        if(n->left!= NULL&&n->right!=NULL) {
-            if(n->value=="*"){
-                return new Mul((readTreePreorder(n->left)),readTreePreorder(n->right));
+Expression*  Interpreter::readTreePreorder(node *n) {
+    if (n) {
+        if (n->left != NULL && n->right != NULL) {
+            if (n->value == "*") {
+                return new Mul((readTreePreorder(n->left)), readTreePreorder(n->right));
             }
-            if(n->value=="/"){
-                return new Div((readTreePreorder(n->left)),readTreePreorder(n->right));
+            if (n->value == "/") {
+                return new Div((readTreePreorder(n->left)), readTreePreorder(n->right));
             }
-            if(n->value=="+"){
-                return new Plus((readTreePreorder(n->left)),readTreePreorder(n->right));
+            if (n->value == "+") {
+                return new Plus((readTreePreorder(n->left)), readTreePreorder(n->right));
             }
-            if(n->value=="-"){
-                return new Minus((readTreePreorder(n->left)),readTreePreorder(n->right));
+            if (n->value == "-") {
+                return new Minus((readTreePreorder(n->left)), readTreePreorder(n->right));
             }
 
-        }else{
-            if(n->value=="$"){
+        } else {
+            if (n->value == "$") {
                 return new UMinus((readTreePreorder(n->left)));
             }
-            if(n->value=="&"){
-                return new UMinus((readTreePreorder(n->left)));
-            }
-            else{
-                return new Value(stod(n->value));
+            if (n->value == "&") {
+                return new UPlus((readTreePreorder(n->left)));
+            } else {
+                if (isnumber(n->value)) {
+                    return new Value(stod(n->value));
+                }
+                std::map<std::string, string>::iterator it = vars.begin();
+                // Iterate over the map using Iterator till end.
+                while (it != vars.end()) {
+                    if (it->first == n->value) {
+                        return new Variable(it->first, stod(it->second));
+                    }
+                    it++;
+                }
             }
         }
     }
