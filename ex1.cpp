@@ -1,43 +1,488 @@
-#include <iostream>
+//
+// Created by osboxes on 11/4/19.
+//
 #include "ex1.h"
-#include <string>
-int main() {
-    /*
-    Variable *x1 = new Variable("x1", 3);// x1=3
-    Expression* e1 = new Mul( new UMinus(new Value(5.0) ) , new Plus( new Value(3.5) , &(++(*x1))) );// -5*(3.5+(++x1))
-    cout << "1: " << e1->calculate() <<endl; //-37.5
-    delete e1;
+#include<iostream>
+#include <regex>
 
-    // 2
-    Variable *x2 = new Variable("x2", 5.0);// x2=5.0
-    Variable *x3 = new Variable("x3", 10.0);// x3=10.0
-    Expression* e2 = new Div(x2, new UMinus(new UPlus(new UMinus(x3))));// -(+(-(5.0)))/10.0
-    cout << "2: " << e2->calculate() << endl; //-0.5
-    delete e2;
+//constructors--------------------------------------------
+BinaryOperator::BinaryOperator(Expression *left, Expression *right) : right(right), left(left) {
+}
 
-    // 3
-    Variable *x4 = new Variable("x4", 2.0);// x4=2.0
-    Variable *x5 = new Variable("x5", -4.5);// x5=-4.5
-    Expression* e3 = new Mul(&(++(*x4)), &((*x5)++));// (++x4)*(x5++)
-    cout << "3: " << e3->calculate() << endl; //-13.5
-    Interpreter* i = new  Interpreter();
+Plus::Plus(Expression *right, Expression *left) : BinaryOperator(right, left) {}
 
-    Interpreter* i1 = new Interpreter();
-    Expression* e4 = i1->interpret("-(2*(3+4))");
-    std::cout << "4: " << e4->calculate() << std::endl;//-14
-    delete e4;
-    Interpreter* i2 = new Interpreter();
-    i2->setVariables("x=2;y=4");
-    i2->setVariables("x=3");
-    Expression* e5 = i2->interpret("2*(-(x)+y)");
-    std::cout << "5: " << e5->calculate() << std::endl;//2
-    delete e5;*/
-    Interpreter* i3 = new Interpreter();
-    i3->setVariables("shir=1.5;y=8.5");
-    Expression* e6 = i3->interpret("-(-(-((shir+0.5)*(y+(-3.5)))))");
-    std::cout << "6: " << e6->calculate() << std::endl;//-1
-    delete e6;
+Minus::Minus(Expression *right, Expression *left) : BinaryOperator(right, left) {}
 
+Mul::Mul(Expression *right, Expression *left) : BinaryOperator(right, left) {}
 
+Div::Div(Expression *right, Expression *left) : BinaryOperator(right, left) {}
+
+UnaryOperator::UnaryOperator(Expression *exp) : exp(exp) {}
+
+UPlus::UPlus(Expression *exp) : UnaryOperator(exp) {}
+
+UMinus::UMinus(Expression *exp) : UnaryOperator(exp) {}
+Variable::Variable( string s, double val) {
+    this->name = s;
+    this->value= val;
+};
+
+Value::Value(const double val) : val(val) {}
+
+//calculate()-------------------------------------------------
+double Plus:: calculate() {
+    return this->getLeft()->calculate()+ this->getRight()->calculate();
+};
+double Mul:: calculate() {
+    return this->getLeft()->calculate()* this->getRight()->calculate();
+};
+double Div:: calculate() {
+    double leftRes= this->getLeft()->calculate();
+    double righttRes= this->getRight()->calculate();
+    if ( righttRes==0) {
+        cout<<"divide by zero"<<endl;
+    }
+    return leftRes /righttRes;
+};
+double Minus:: calculate() {
+    this->getLeft()->calculate()-this->getRight()->calculate();
+};
+double Value:: calculate() {
+    return val;
+};
+double Variable::calculate() {
+    return value;
+};
+double UMinus:: calculate() {
+    return  -1 *this->getExp()->calculate();
+};
+double UPlus:: calculate() {
+    return  1 * this->getExp()->calculate();
+};
+//Variable---------------------------------
+Expression& Variable:: operator ++() {
+     this->increase();
+     return  *this;
+};
+Expression& Variable:: operator ++(int n) {
+    Expression& e = *(new Variable(this->name,this->value++));
+    return  e;
+};
+Expression& Variable:: operator--() {
+    this->decrease();
+    return *this;
+};
+Expression& Variable:: operator +=(double val) {
+    this->value+= val;
+    return *this;
+};
+Expression& Variable:: operator =(double val) {
+    this->value = val;
+    return *this;
+};
+void Variable::increase() {
+    this->value++;
+};
+void Variable::decrease()  {
+    this->value--;
+};
+Expression* BinaryOperator::getLeft() { return left;}
+Expression* BinaryOperator::getRight() { return right;}
+double Value::getVal() { return val;}
+string Variable::getName() { return name;}
+double  Variable::getVal() { return value;}
+Expression* UnaryOperator::getExp() { return exp;}
+BinaryOperator::~BinaryOperator() {
 
 }
+Plus::~Plus() {
+
+}
+
+Minus::~Minus() {
+
+}
+
+Mul::~Mul() {
+
+}
+
+Div::~Div() {
+
+}
+
+Value::~Value() {
+
+}
+
+UnaryOperator::~UnaryOperator() {
+
+}
+
+UPlus::~UPlus() {
+
+}
+
+UMinus::~UMinus() {
+
+}
+Variable::~Variable() {
+}
+void  Interpreter::setVariables(string s) {
+    string buffer = s;
+    string delimiter = ";";
+    size_t pos = 0;
+    string token;
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+        token = s.substr(0, pos);
+        // Check if element 22 exists in vector
+        this->g1.push_back(token);
+        std::cout << token << std::endl;
+        s.erase(0, pos + delimiter.length());
+    }
+    this->g1.push_back(s);
+    this->insertMap();
+    varsCreator();
+}
+void  Interpreter::setPlacement(string s) {
+    string left;
+    string right;
+    string buffer = s;
+    string delimiter = "=";
+    size_t pos = 0;
+    string token;
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+        token = s.substr(0, pos);
+        left=token;
+        s.erase(0, pos + delimiter.length());
+    }
+    for (std::map<string,string>::iterator it=vars.begin(); it!=vars.end(); ++it){
+        if(it->first == token){
+            it->second =s;
+            return;
+        }
+    }
+    right=s;
+    if(isnumber(s)){
+        this->vars.insert(std::pair<string,string>(left,right));
+    }
+    else{
+        cout<<"error giving value!"<<endl;
+        return;
+    }
+}
+void  Interpreter::insertMap(){
+    for(std::size_t i=0; i<g1.size(); ++i)
+        setPlacement(g1[i]);
+}
+bool  Interpreter::isnumber(string str) {
+    int flag=  0;
+    int x = int(str[0]);
+    for(int i=0;i<str.length();i++)
+        if(x>=48&&x<=57){
+            continue;
+        }else  if ((i>0)&&(const char*)str[i]=="."&&flag==0){
+            int flag = 1;
+            continue;
+        }
+        else{
+            cout<<"false"<<endl;
+            return false;
+        }
+    return true;
+}
+map<string,string> Interpreter::getVars() {
+    return this->vars;
+}
+void  Interpreter::varsCreator() {
+    map<string, string>::iterator it;
+    it=this->getVars().begin();
+    for (int j= 0; j<this->vars.size(); j++,it++)
+    {
+        double value = stod(it->second);
+        cout<<value<<endl;
+        this->variables.push_back(*(new Variable(it->first,value)));
+    }
+}
+Expression*  Interpreter::interpret(string str) {
+
+    str = checkUnary(str);
+int size= str.size();
+int check=0;
+for(int i=0;i<size;i++) {
+    string buffer;
+    int flag= 0;
+   char c = str[i];
+   char c1;
+   std::string s(1,c);
+  check = checkChar(c);
+    switch(check) {
+        //Alphabetic
+        case 1 :
+            buffer.push_back(c);
+            i++;
+            while((i<size)&&(checkChar(str[i])!=3&&(str[i]!='('&&str[i]!=')'))){
+                buffer.push_back(str[i]);
+                i++;
+            }
+            i--;
+            if (vars.find(buffer)==vars.end()){
+                cout<<"variable not found"<<endl;
+                return nullptr;
+            }//then its really a var!
+            queueOfStrokes.push(buffer);
+            break;
+            //number
+        case 2 :
+            buffer.push_back(c);
+            i++;
+            while(flag<=1&&(i<size)&&(checkChar(str[i])!=3&&str[i]!='('&&str[i]!=')')) {
+                if(str[i]=='.'){
+                    flag ++;
+                }
+                buffer.push_back(str[i]);
+                i++;
+            }
+            if (flag>1){
+                cout<<"error with number"<<endl;
+                return nullptr;
+            }
+            i--;
+            queueOfStrokes.push(buffer);
+            break;
+            //Binary operator
+        case 3:
+            if(s=="("){
+                stackOfStrokes.push(s);
+                break;
+
+            }else if(s==")"){
+                while(!stackOfStrokes.empty()&&stackOfStrokes.top()!="("){
+                    queueOfStrokes.push(stackOfStrokes.top());
+                    stackOfStrokes.pop();
+                }
+                if(!stackOfStrokes.empty()&&((stackOfStrokes.top()=="("))){
+                    stackOfStrokes.pop();
+                    break;
+                }
+                queueOfStrokes.push(stackOfStrokes.top());
+                stackOfStrokes.pop();
+                break;
+            }
+            if((!stackOfStrokes.empty())&&(stackOfStrokes.top()=="(")){
+                stackOfStrokes.push(s);
+                break;
+            }
+            //if the current is higher precedence than top
+            if((!stackOfStrokes.empty())&&comparePrecedence(s,stackOfStrokes.top())){
+                stackOfStrokes.push(s);
+                break;
+            }
+            if(!stackOfStrokes.empty()){
+                queueOfStrokes.push(stackOfStrokes.top());
+                stackOfStrokes.pop();
+                stackOfStrokes.push(s);
+                break;
+            }else {
+               stackOfStrokes.push(s) ;
+            }
+           break;
+        case 4:
+            if((!stackOfStrokes.empty())&&comparePrecedence(s,stackOfStrokes.top())){
+                stackOfStrokes.push(s);
+                break;
+            }
+            if(!stackOfStrokes.empty()){
+                queueOfStrokes.push(stackOfStrokes.top());
+                stackOfStrokes.pop();
+                stackOfStrokes.push(s);
+                break;
+            }else {
+                stackOfStrokes.push(s) ;
+            }
+            break;
+        default:cout<<"error with prefix"<<endl;
+    }
+
+}
+    while(!stackOfStrokes.empty()){
+        queueOfStrokes.push(stackOfStrokes.top());
+        stackOfStrokes.pop();
+    }
+    node * t = buildTree(this->queueOfStrokes);
+    cout<<"buildtre check"<<endl;
+    return readTreePreorder(t);
+}
+int Interpreter::checkChar(char c) {
+    if(c==36||c==38){
+        return 4;
+    }
+    // CHECKING FOR ALPHABET
+    if ((c >= 65 && c <= 90)
+        || (c >= 97 && c <= 122)) {
+        return 1;
+    }else if (c >= 48 && c <= 57){
+        return 2;
+    }
+    // operator
+    else if((c!=44&&c!=46) && c >=40 && c <=47) {
+        return 3;
+    }
+
+}
+int  Interpreter::precedence(string s)  {
+    //unarry operator!
+    if(s=="+"||s=="-"){
+        return 1;
+    }
+    if(s=="*"||s=="/"){
+        return 2;
+    }
+    if(s=="$"||s=="&"){
+        return 3;
+    }
+    else{
+        return 0;
+    }
+}
+bool  Interpreter::comparePrecedence(string current,string top){
+    if(!stackOfStrokes.empty()){
+        return precedence(top) < precedence(current);
+    }
+    return true;
+}
+string  Interpreter::checkUnary(string s) {
+    int i=0;
+    string::iterator it ;
+    for (it=s.begin();it!=s.end();it++,i++) {
+        if ((*it =='-')||(*it=='+')) {
+            if (it==s.begin()){
+                if (*it=='-'){
+                    *it='$';
+                    cout<<s<<endl;
+                    continue;
+                }
+                *it='&';
+                cout<<s<<endl;
+                continue;
+
+            }
+            else {
+                it--;
+                if (*it==40||*it=='/'||*it=='*'){
+                    it++;
+                    if (*it=='-'){
+                        cout<<"unary minus works!"<<endl;
+                        *it='$';
+                        cout<<s<<endl;
+                        continue;
+                    }
+                    *it='&';
+                    cout<<"unary plus works!"<<endl;
+                    cout<<s<<endl;
+                    continue;
+                }
+                else{
+                    it++;
+                    continue;
+                }
+            }
+        }
+    }
+    cout<<"check uarry"+s<<endl;
+   //to do
+    return s;
+}
+node*  Interpreter::buildTree(queue<string>q) {
+    node * node0, *node1, *node2;
+    stack<node *> st;
+    int temp = q.size();
+    for (int i=0; i< temp; i++)
+    {
+        // If operand, push into stack
+        string s = q.front();
+        q.pop();
+        char c= s[0];
+        int res=checkChar(c);
+        if (res==1||res==2)
+        {
+            node0 = buildNode(s);
+            st.push(node0);
+        }
+        else // operator
+        {
+            if(res==4){
+                node0 = buildNode(s);
+                node1 = st.top();
+                st.pop();
+                node0->left = node1;
+                node0->right = NULL;
+                st.push(node0);
+                continue;
+            }
+            node0 = buildNode(s);
+            // Pop two top nodes
+            node1 = st.top();
+            st.pop();
+            node2 = st.top();
+            st.pop();
+
+            //  make the 2 nodes children of node0
+            node0->right = node1;
+           node0->left = node2;
+
+            // Add this subexpression to stack
+            st.push(node0);
+        }
+    }
+    //  only element will be root of expression
+    // tree
+    node0 = st.top();
+    st.pop();
+    return node0;
+}
+node*  Interpreter::buildNode(string s){
+    node *temp = new node;
+    temp->left = temp->right = NULL;
+    temp->value = s;
+    return temp;
+}
+Expression*  Interpreter::readTreePreorder(node *n) {
+    if (n) {
+        if (n->left != NULL && n->right != NULL) {
+            if (n->value == "*") {
+                return new Mul((readTreePreorder(n->left)), readTreePreorder(n->right));
+            }
+            if (n->value == "/") {
+                return new Div((readTreePreorder(n->left)), readTreePreorder(n->right));
+            }
+            if (n->value == "+") {
+                return new Plus((readTreePreorder(n->left)), readTreePreorder(n->right));
+            }
+            if (n->value == "-") {
+                return new Minus((readTreePreorder(n->left)), readTreePreorder(n->right));
+            }
+
+        } else {
+            if (n->value == "$") {
+                return new UMinus((readTreePreorder(n->left)));
+            }
+            if (n->value == "&") {
+                return new UPlus((readTreePreorder(n->left)));
+            } else {
+                if (isnumber(n->value)) {
+                    return new Value(stod(n->value));
+                }
+                std::map<std::string, string>::iterator it = vars.begin();
+                // Iterate over the map using Iterator till end.
+                while (it != vars.end()) {
+                    if (it->first == n->value) {
+                        return new Variable(it->first, stod(it->second));
+                    }
+                    it++;
+                }
+            }
+        }
+    }
+}
+//-------------------------------------------------------------------------
