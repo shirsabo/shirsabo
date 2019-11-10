@@ -31,21 +31,27 @@ Value::Value(const double val) : val(val) {}
 
 //calculate()-------------------------------------------------
 double Plus:: calculate() {
-    return this->getLeft()->calculate()+ this->getRight()->calculate();
+    double left =this->getLeft()->calculate();
+    double right=this->getRight()->calculate();
+    return left+right;
 };
 double Mul:: calculate() {
+    double left =this->getLeft()->calculate();
+    double right=this->getRight()->calculate();
     return this->getLeft()->calculate()* this->getRight()->calculate();
 };
 double Div:: calculate() {
     double leftRes= this->getLeft()->calculate();
     double righttRes= this->getRight()->calculate();
-    if ( righttRes==0) {
-        cout<<"divide by zero"<<endl;
+    if (righttRes==0) {
+        throw "Division by zero condition!";
     }
     return leftRes /righttRes;
 };
 double Minus:: calculate() {
-    this->getLeft()->calculate()-this->getRight()->calculate();
+    double left =this->getLeft()->calculate();
+    double right=this->getRight()->calculate();
+    return left-right;
 };
 double Value:: calculate() {
     return val;
@@ -57,7 +63,7 @@ double UMinus:: calculate() {
     return  -1 *this->getExp()->calculate();
 };
 double UPlus:: calculate() {
-    return  1 * this->getExp()->calculate();
+    return this->getExp()->calculate();
 };
 //Variable---------------------------------
 Expression& Variable:: operator ++() {
@@ -65,7 +71,11 @@ Expression& Variable:: operator ++() {
      return  *this;
 };
 Expression& Variable:: operator ++(int n) {
-    Expression& e = *(new Variable(this->name,this->value++));
+    Expression& e = *(new Variable(this->name,++this->value));
+    return  e;
+};
+Expression& Variable:: operator --(int n) {
+    Expression& e = *(new Variable(this->name,--this->value));
     return  e;
 };
 Expression& Variable:: operator--() {
@@ -93,38 +103,40 @@ string Variable::getName() { return name;}
 double  Variable::getVal() { return value;}
 Expression* UnaryOperator::getExp() { return exp;}
 BinaryOperator::~BinaryOperator() {
-
+//delete this->right;
+//delete this->left;
 }
 Plus::~Plus() {
+    //delete this->getLeft();
+   // delete this->getRight();
 
 }
 
 Minus::~Minus() {
-
+  //  delete this->getLeft();
+  //  delete this->getRight();
 }
 
 Mul::~Mul() {
-
+  //  delete this->getLeft();
+  //  delete this->getRight();
 }
 
 Div::~Div() {
+  //  delete this->getLeft();
+ //   delete this->getRight();
+}
+Value::~Value(){
 
 }
-
-Value::~Value() {
-
-}
-
 UnaryOperator::~UnaryOperator() {
-
+//delete this->exp;
 }
 
 UPlus::~UPlus() {
-
 }
 
 UMinus::~UMinus() {
-
 }
 Variable::~Variable() {
 }
@@ -137,7 +149,6 @@ void  Interpreter::setVariables(string s) {
         token = s.substr(0, pos);
         // Check if element 22 exists in vector
         this->g1.push_back(token);
-        std::cout << token << std::endl;
         s.erase(0, pos + delimiter.length());
     }
     this->g1.push_back(s);
@@ -167,7 +178,7 @@ void  Interpreter::setPlacement(string s) {
         this->vars.insert(std::pair<string,string>(left,right));
     }
     else{
-        cout<<"error giving value!"<<endl;
+        throw "Error with giving the value!";
         return;
     }
 }
@@ -176,19 +187,27 @@ void  Interpreter::insertMap(){
         setPlacement(g1[i]);
 }
 bool  Interpreter::isnumber(string str) {
-    int flag=  0;
-    int x = int(str[0]);
-    for(int i=0;i<str.length();i++)
-        if(x>=48&&x<=57){
-            continue;
-        }else  if ((i>0)&&(const char*)str[i]=="."&&flag==0){
-            int flag = 1;
+    int flagpoint=  0;
+    int flagMinus=0;
+    int x;
+    for(int i=0;i<str.length();i++) {
+        x = int(str[i]);
+        if(i==0 && str[i] == '-'){
+            flagMinus=1;
             continue;
         }
-        else{
-            cout<<"false"<<endl;
+        if(i>0&&str[i] == '-') {
             return false;
         }
+        if (x >= 48 && x <= 57) {
+            continue;
+        } else if ((i > 0) &&  str[i] == '.' && flagpoint == 0) {
+             flagpoint = 1;
+            continue;
+        } else {
+            return false;
+        }
+    }
     return true;
 }
 map<string,string> Interpreter::getVars() {
@@ -200,12 +219,10 @@ void  Interpreter::varsCreator() {
     for (int j= 0; j<this->vars.size(); j++,it++)
     {
         double value = stod(it->second);
-        cout<<value<<endl;
         this->variables.push_back(*(new Variable(it->first,value)));
     }
 }
 Expression*  Interpreter::interpret(string str) {
-
     str = checkUnary(str);
 int size= str.size();
 int check=0;
@@ -227,7 +244,7 @@ for(int i=0;i<size;i++) {
             }
             i--;
             if (vars.find(buffer)==vars.end()){
-                cout<<"variable not found"<<endl;
+                throw "variable not found";
                 return nullptr;
             }//then its really a var!
             queueOfStrokes.push(buffer);
@@ -244,8 +261,7 @@ for(int i=0;i<size;i++) {
                 i++;
             }
             if (flag>1){
-                cout<<"error with number"<<endl;
-                return nullptr;
+                throw "Error with the given number!";
             }
             i--;
             queueOfStrokes.push(buffer);
@@ -301,7 +317,7 @@ for(int i=0;i<size;i++) {
                 stackOfStrokes.push(s) ;
             }
             break;
-        default:cout<<"error with prefix"<<endl;
+        default:throw "error with prefix!";
     }
 
 }
@@ -310,7 +326,6 @@ for(int i=0;i<size;i++) {
         stackOfStrokes.pop();
     }
     node * t = buildTree(this->queueOfStrokes);
-    cout<<"buildtre check"<<endl;
     return readTreePreorder(t);
 }
 int Interpreter::checkChar(char c) {
@@ -328,7 +343,6 @@ int Interpreter::checkChar(char c) {
     else if((c!=44&&c!=46) && c >=40 && c <=47) {
         return 3;
     }
-
 }
 int  Interpreter::precedence(string s)  {
     //unarry operator!
@@ -359,11 +373,9 @@ string  Interpreter::checkUnary(string s) {
             if (it==s.begin()){
                 if (*it=='-'){
                     *it='$';
-                    cout<<s<<endl;
                     continue;
                 }
                 *it='&';
-                cout<<s<<endl;
                 continue;
 
             }
@@ -372,14 +384,10 @@ string  Interpreter::checkUnary(string s) {
                 if (*it==40||*it=='/'||*it=='*'){
                     it++;
                     if (*it=='-'){
-                        cout<<"unary minus works!"<<endl;
                         *it='$';
-                        cout<<s<<endl;
                         continue;
                     }
                     *it='&';
-                    cout<<"unary plus works!"<<endl;
-                    cout<<s<<endl;
                     continue;
                 }
                 else{
@@ -389,8 +397,6 @@ string  Interpreter::checkUnary(string s) {
             }
         }
     }
-    cout<<"check uarry"+s<<endl;
-   //to do
     return s;
 }
 node*  Interpreter::buildTree(queue<string>q) {
@@ -430,7 +436,6 @@ node*  Interpreter::buildTree(queue<string>q) {
             //  make the 2 nodes children of node0
             node0->right = node1;
            node0->left = node2;
-
             // Add this subexpression to stack
             st.push(node0);
         }
