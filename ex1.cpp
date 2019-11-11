@@ -3,32 +3,21 @@
 //
 #include "ex1.h"
 #include<iostream>
-#include <regex>
-
 //constructors--------------------------------------------
 BinaryOperator::BinaryOperator(Expression *left, Expression *right) : right(right), left(left) {
 }
-
 Plus::Plus(Expression *right, Expression *left) : BinaryOperator(right, left) {}
-
 Minus::Minus(Expression *right, Expression *left) : BinaryOperator(right, left) {}
-
 Mul::Mul(Expression *right, Expression *left) : BinaryOperator(right, left) {}
-
 Div::Div(Expression *right, Expression *left) : BinaryOperator(right, left) {}
-
 UnaryOperator::UnaryOperator(Expression *exp) : exp(exp) {}
-
 UPlus::UPlus(Expression *exp) : UnaryOperator(exp) {}
-
 UMinus::UMinus(Expression *exp) : UnaryOperator(exp) {}
 Variable::Variable( string s, double val) {
     this->name = s;
     this->value= val;
 };
-
 Value::Value(const double val) : val(val) {}
-
 //calculate()-------------------------------------------------
 double Plus:: calculate() {
     double left =this->getLeft()->calculate();
@@ -103,39 +92,24 @@ string Variable::getName() { return name;}
 double  Variable::getVal() { return value;}
 Expression* UnaryOperator::getExp() { return exp;}
 BinaryOperator::~BinaryOperator() {
-//delete this->right;
-//delete this->left;
+delete this->right;
+delete this->left;
 }
 Plus::~Plus() {
-    //delete this->getLeft();
-   // delete this->getRight();
-
 }
-
 Minus::~Minus() {
-  //  delete this->getLeft();
-  //  delete this->getRight();
 }
-
 Mul::~Mul() {
-  //  delete this->getLeft();
-  //  delete this->getRight();
 }
-
 Div::~Div() {
-  //  delete this->getLeft();
- //   delete this->getRight();
 }
 Value::~Value(){
-
 }
 UnaryOperator::~UnaryOperator() {
-//delete this->exp;
+delete this->exp;
 }
-
 UPlus::~UPlus() {
 }
-
 UMinus::~UMinus() {
 }
 Variable::~Variable() {
@@ -223,110 +197,110 @@ void  Interpreter::varsCreator() {
     }
 }
 Expression*  Interpreter::interpret(string str) {
-    str = checkUnary(str);
-int size= str.size();
-int check=0;
-for(int i=0;i<size;i++) {
-    string buffer;
-    int flag= 0;
-   char c = str[i];
-   char c1;
-   std::string s(1,c);
-  check = checkChar(c);
-    switch(check) {
-        //Alphabetic
-        case 1 :
-            buffer.push_back(c);
-            i++;
-            while((i<size)&&(checkChar(str[i])!=3&&(str[i]!='('&&str[i]!=')'))){
-                buffer.push_back(str[i]);
-                i++;
-            }
-            i--;
-            if (vars.find(buffer)==vars.end()){
-                throw "variable not found";
-                return nullptr;
-            }//then its really a var!
-            queueOfStrokes.push(buffer);
-            break;
-            //number
-        case 2 :
-            buffer.push_back(c);
-            i++;
-            while(flag<=1&&(i<size)&&(checkChar(str[i])!=3&&str[i]!='('&&str[i]!=')')) {
-                if(str[i]=='.'){
-                    flag ++;
-                }
-                buffer.push_back(str[i]);
-                i++;
-            }
-            if (flag>1){
-                throw "Error with the given number!";
-            }
-            i--;
-            queueOfStrokes.push(buffer);
-            break;
-            //Binary operator
-        case 3:
-            if(s=="("){
-                stackOfStrokes.push(s);
-                break;
-
-            }else if(s==")"){
-                while(!stackOfStrokes.empty()&&stackOfStrokes.top()!="("){
-                    queueOfStrokes.push(stackOfStrokes.top());
-                    stackOfStrokes.pop();
-                }
-                if(!stackOfStrokes.empty()&&((stackOfStrokes.top()=="("))){
-                    stackOfStrokes.pop();
+        str = checkUnary(str);
+        int size = str.size();
+        int check = 0;
+        for (int i = 0; i < size; i++) {
+            string buffer;
+            int flag = 0;
+            char c = str[i];
+            char c1;
+            std::string s(1, c);
+            check = checkChar(c);
+            switch (check) {
+                //Alphabetic
+                case 1 :
+                    buffer.push_back(c);
+                    i++;
+                    while ((i < size) && (checkChar(str[i]) != 3 && (str[i] != '(' && str[i] != ')'))) {
+                        buffer.push_back(str[i]);
+                        i++;
+                    }
+                    i--;
+                    if (vars.find(buffer) == vars.end()) {
+                        throw "variable not found";
+                        return nullptr;
+                    }//then its really a var!
+                    queueOfStrokes.push(buffer);
                     break;
-                }
-                queueOfStrokes.push(stackOfStrokes.top());
-                stackOfStrokes.pop();
-                break;
-            }
-            if((!stackOfStrokes.empty())&&(stackOfStrokes.top()=="(")){
-                stackOfStrokes.push(s);
-                break;
-            }
-            //if the current is higher precedence than top
-            if((!stackOfStrokes.empty())&&comparePrecedence(s,stackOfStrokes.top())){
-                stackOfStrokes.push(s);
-                break;
-            }
-            if(!stackOfStrokes.empty()){
-                queueOfStrokes.push(stackOfStrokes.top());
-                stackOfStrokes.pop();
-                stackOfStrokes.push(s);
-                break;
-            }else {
-               stackOfStrokes.push(s) ;
-            }
-           break;
-        case 4:
-            if((!stackOfStrokes.empty())&&comparePrecedence(s,stackOfStrokes.top())){
-                stackOfStrokes.push(s);
-                break;
-            }
-            if(!stackOfStrokes.empty()){
-                queueOfStrokes.push(stackOfStrokes.top());
-                stackOfStrokes.pop();
-                stackOfStrokes.push(s);
-                break;
-            }else {
-                stackOfStrokes.push(s) ;
-            }
-            break;
-        default:throw "error with prefix!";
-    }
+                    //number
+                case 2 :
+                    buffer.push_back(c);
+                    i++;
+                    while (flag <= 1 && (i < size) && (checkChar(str[i]) != 3 && str[i] != '(' && str[i] != ')')) {
+                        if (str[i] == '.') {
+                            flag++;
+                        }
+                        buffer.push_back(str[i]);
+                        i++;
+                    }
+                    if (flag > 1) {
+                        throw "Error with the given number!";
+                    }
+                    i--;
+                    queueOfStrokes.push(buffer);
+                    break;
+                    //Binary operator
+                case 3:
+                    if (s == "(") {
+                        stackOfStrokes.push(s);
+                        break;
 
-}
-    while(!stackOfStrokes.empty()){
-        queueOfStrokes.push(stackOfStrokes.top());
-        stackOfStrokes.pop();
-    }
-    node * t = buildTree(this->queueOfStrokes);
-    return readTreePreorder(t);
+                    } else if (s == ")") {
+                        while (!stackOfStrokes.empty() && stackOfStrokes.top() != "(") {
+                            queueOfStrokes.push(stackOfStrokes.top());
+                            stackOfStrokes.pop();
+                        }
+                        if (!stackOfStrokes.empty() && ((stackOfStrokes.top() == "("))) {
+                            stackOfStrokes.pop();
+                            break;
+                        }
+                        queueOfStrokes.push(stackOfStrokes.top());
+                        stackOfStrokes.pop();
+                        break;
+                    }
+                    if ((!stackOfStrokes.empty()) && (stackOfStrokes.top() == "(")) {
+                        stackOfStrokes.push(s);
+                        break;
+                    }
+                    //if the current is higher precedence than top
+                    if ((!stackOfStrokes.empty()) && comparePrecedence(s, stackOfStrokes.top())) {
+                        stackOfStrokes.push(s);
+                        break;
+                    }
+                    if (!stackOfStrokes.empty()) {
+                        queueOfStrokes.push(stackOfStrokes.top());
+                        stackOfStrokes.pop();
+                        stackOfStrokes.push(s);
+                        break;
+                    } else {
+                        stackOfStrokes.push(s);
+                    }
+                    break;
+                case 4:
+                    if ((!stackOfStrokes.empty()) && comparePrecedence(s, stackOfStrokes.top())) {
+                        stackOfStrokes.push(s);
+                        break;
+                    }
+                    if (!stackOfStrokes.empty()) {
+                        queueOfStrokes.push(stackOfStrokes.top());
+                        stackOfStrokes.pop();
+                        stackOfStrokes.push(s);
+                        break;
+                    } else {
+                        stackOfStrokes.push(s);
+                    }
+                    break;
+                default:
+                    throw "error with prefix!";
+            }
+        }
+        while (!stackOfStrokes.empty()) {
+            queueOfStrokes.push(stackOfStrokes.top());
+            stackOfStrokes.pop();
+        }
+        node *t = buildTree(this->queueOfStrokes);
+        return readTreePreorder(t);
 }
 int Interpreter::checkChar(char c) {
     if(c==36||c==38){
@@ -377,7 +351,6 @@ string  Interpreter::checkUnary(string s) {
                 }
                 *it='&';
                 continue;
-
             }
             else {
                 it--;
@@ -428,14 +401,21 @@ node*  Interpreter::buildTree(queue<string>q) {
             }
             node0 = buildNode(s);
             // Pop two top nodes
-            node1 = st.top();
-            st.pop();
-            node2 = st.top();
-            st.pop();
-
-            //  make the 2 nodes children of node0
-            node0->right = node1;
-           node0->left = node2;
+            if(!st.empty()) {
+                node1 = st.top();
+                st.pop();
+                if(!st.empty()) {
+                    node2 = st.top();
+                    st.pop();
+                }else{
+                    throw "bad input";
+                }
+                //  make the 2 nodes children of node0
+                node0->right = node1;
+                node0->left = node2;
+            }else{
+                throw "bad input";
+            }
             // Add this subexpression to stack
             st.push(node0);
         }
@@ -467,7 +447,6 @@ Expression*  Interpreter::readTreePreorder(node *n) {
             if (n->value == "-") {
                 return new Minus((readTreePreorder(n->left)), readTreePreorder(n->right));
             }
-
         } else {
             if (n->value == "$") {
                 return new UMinus((readTreePreorder(n->left)));
