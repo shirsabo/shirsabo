@@ -8,7 +8,14 @@
 #include "Expression.h"
 #include<map>
 #include <vector>
+#include <stack>
+#include <queue>
 
+struct node
+{
+    string value;
+    node* left, *right;
+};
 class BinaryOperator: public Expression {
 public:
     BinaryOperator(Expression *right, Expression *left);
@@ -74,6 +81,7 @@ public:
    Expression&  operator ++ () ;
    Expression& operator++(int);
     Expression& operator --() ;
+    Expression& operator --(int n);
     Expression&   operator +=(double  var) ;
     Expression&    operator =(double  var) ;
   void   increase ();
@@ -112,15 +120,29 @@ public:
 
     virtual ~UMinus();
 };
-class Interpeter {
+class  Interpreter {
 public:
-
     void setVariables(const string);
     void setPlacement(string s);
     void insertMap();
+    void varsCreator();
+    bool isnumber(string);
+    int checkChar(char);
+    Expression* interpret(string);
+    int precedence(string);
+    bool comparePrecedence(string,string);
+    string checkUnary(string);
+    node* buildTree(queue<string>);
+    node*buildNode(string);
+    Expression* readTreePreorder(node *n);
+    string var(int*);
 private:
     map<string,string > vars;
     vector<string> g1;
-
+    vector<Variable>variables;
+    stack<string>stackOfStrokes;
+    queue<string> queueOfStrokes;
+    map<string,string>getVars();
+    vector<Variable>getVariables();
 };
 #endif //PROJECT_EXPRESSION_H
