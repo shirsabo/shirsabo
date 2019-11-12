@@ -317,6 +317,7 @@ int Interpreter::checkChar(char c) {
     else if((c!=44&&c!=46) && c >=40 && c <=47) {
         return 3;
     }
+    return 5;
 }
 int  Interpreter::precedence(string s)  {
     //unarry operator!
