@@ -40,6 +40,7 @@ byte_t *create_bytes(char *file_name)
             students[j]= mask;
         }
          i =0;
+        fclose(fp);
         return students;
     }else{
         printf("error opening file\n");
@@ -49,15 +50,46 @@ byte_t *create_bytes(char *file_name)
 }
 void print_bytes(byte_t *byte_array, FILE* out)
 {
-    int i=0;
-    for(i;i<count;i++){
-        printf("%X",byte_array[i]);
+    if(out){
+        int i=0;
+        for(i;i<count;i++){
+            byte_t x= byte_array[i];
+            fprintf(out,"%02x",byte_array[i]);
+        }
+        fprintf(out,"\n");
     }
-    printf("\n");
+    else{
+        printf("error!");
+    }
 }
 void set_stud(byte_t *byte_array, int i, int j, int k)
 {
-	byte_t  x=byte_array[i-1];
+ byte_t x=byte_array[i-1];
+ byte_t mask=255;
+ switch(j){
+     case 1:
+         mask=mask<<2;
+         byte_array[i-1]=(byte_array[i-1])&mask;
+         byte_array[i-1]=byte_array[i-1]|k;
+         break;
+         //shifts on all cases 2-4
+     case 2:
+         mask=243;
+         byte_array[i-1]=(byte_array[i-1])&mask;
+         byte_array[i-1]=byte_array[i-1]|(k<<2);
+         break;
+     case 3:
+         mask=207;
+         byte_array[i-1]=(byte_array[i-1])&mask;
+         byte_array[i-1]=byte_array[i-1]|(k<<4);
+         break;
+     case 4:
+         mask=63;
+         byte_array[i-1]=(byte_array[i-1])&mask;
+         byte_array[i-1]=byte_array[i-1]|(k<<6);
+         break;
+ }
+
 
 }
 float average_stud(byte_t *byte_array, int i)
@@ -85,31 +117,31 @@ float average_stud(byte_t *byte_array, int i)
 float average_ans(byte_t *byte_array, int j)
 {
     int i=0;
-    int x=1;
     byte_t mask0 = 0x3;
-    byte_t mask1 = 0X12;
-    byte_t mask2 = 0X48;
-    byte_t mask3 =192;
     byte_t sum = 0;
     for(;i<count;i++) {
-
+        byte_t  x =byte_array[i];
         switch (j) {
             case 1:
-                sum+=mask0&byte_array[j];
+                sum+=mask0&x;
                 break;
                 //shifts on all cases 2-4
-            case 2:sum+=mask1&byte_array[j];
+            case 2:x=x>>2;
+                sum+=mask0&x;
                 break;
-            case 3:sum+=mask2&byte_array[j];
+            case 3:x=x>>4;
+               sum+=mask0&x;
                 break;
-            case 4:sum+=mask3&byte_array[j];
+            case 4:x=x>>6;
+                sum+=mask0&x;
                 break;
         }
     }
     byte_t maskOne=0X1;
     int sumInt=0;
-    for (i=0;i<8<i++;x=2*x){
-        sumInt+=(sum&maskOne)*x;
+    int k=1;
+    for (i=0;i<8;i++,k=2*k){
+        sumInt+=(sum&maskOne)*k;
         sum= sum>>1;
     }
     return (float)sumInt/(float)count;
