@@ -31,9 +31,33 @@ private:
     node <type*>* tail;
     unordered_map< string, node<type*>> mp;
 public:
+     void writeToFile(type obj,string key) {
+        // Object to write in file
+        ofstream file_obj;
+        // Opening file in append mode
+        file_obj.open(obj.class_name +key+".txt", ios::app);
+        // Writing the object's data in file
+        file_obj.write((char*)&obj, sizeof(obj));
+        file_obj.close();
+    }
+  type readToFile() {
+        ifstream file_obj;
+        type* objPtr = new type();
+        type obj = *objPtr;
+        // Opening file in input mode
+        file_obj.open(obj.class_name+".txt", ios::in);
+        // Object of class contestant to input data in file
+        // Reading from file into object "obj"
+        file_obj.read((char*)&(obj), sizeof(obj));
+        file_obj.close();
+        return obj;
+    }
     void insert(string key, type obj) {
         type* objIn = new type();
         *objIn = obj;
+        writeToFile(*objIn,key);
+        type* objTemp =  new type();
+        *objTemp =readToFile();
         //node <type*> nodeIn= new ::node<type*>(key,new type(obj));
         node<type*>* nodeIn = new ::node<type*>(key,objIn);
         auto search = this->mp.find(key);
