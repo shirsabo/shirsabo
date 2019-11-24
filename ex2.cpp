@@ -31,40 +31,39 @@ private:
     node <type*>* tail;
     unordered_map< string, node<type*>> mp;
 public:
-     void writeToFile(type obj,string key) {
+    void writeToFile(type obj,string key) {
         // Object to write in file
         ofstream file_obj;
         // Opening file in append mode
-        file_obj.open(obj.class_name +key+".txt", ios::app);
+        file_obj.open(obj.class_name +key+".txt");//, ios::out | ios::binary);
         // Writing the object's data in file
         file_obj.write((char*)&obj, sizeof(obj));
         file_obj.close();
     }
-  type readToFile() {
+    type readToFile(string key) {
         ifstream file_obj;
         type* objPtr = new type();
-        type obj = *objPtr;
         // Opening file in input mode
-        file_obj.open(obj.class_name+".txt", ios::in);
+        file_obj.open(objPtr->class_name+key+".txt");//, ios::in| ios::binary);
         // Object of class contestant to input data in file
         // Reading from file into object "obj"
-        file_obj.read((char*)&(obj), sizeof(obj));
+        file_obj.read((char*)&(* objPtr), sizeof(* objPtr));
         file_obj.close();
-        return obj;
+        return * objPtr;
     }
     void insert(string key, type obj) {
         type* objIn = new type();
         *objIn = obj;
-        writeToFile(*objIn,key);
+       writeToFile(*objIn,key);
         type* objTemp =  new type();
-        *objTemp =readToFile();
+        *objTemp =readToFile(key);
         //node <type*> nodeIn= new ::node<type*>(key,new type(obj));
         node<type*>* nodeIn = new ::node<type*>(key,objIn);
         auto search = this->mp.find(key);
         if ( search != this->mp.end()) {
-           node<type*>* temp =  &(search->second);
-           ((search->second).obj)=  objIn;
-         moveToHead(nodeIn,temp);
+            node<type*>* temp =  &(search->second);
+            ((search->second).obj)=  objIn;
+            moveToHead(nodeIn,temp);
             return;
         }
         addToFront(nodeIn);
@@ -104,7 +103,6 @@ public:
         node<type*>* savedNext = nodeIn->next;
         savedPrev->next = savedNext;
         savedNext->prev = savedPrev;
-        cout<<savedPrev->key;
         auto search = this->mp.find(savedPrev->key);
         if ( search != this->mp.end()) {
             (search->second).next= savedNext;
@@ -113,7 +111,7 @@ public:
         if ( search != this->mp.end()) {
             (search->second).prev= savedPrev;
         }
-       -- this->totalItemsInCache;
+        -- this->totalItemsInCache;
     }
     void moveToHead(node<type*> * nodeIn,node<type*>*temp) {
         removeFromList(temp);
@@ -128,7 +126,15 @@ public:
         moveToHead(&(search->second),&(search->second));
         return (*((search -> second).obj));
     }
-    //void foreach(for you to figure out);
+    template <typename Func> void foreach(Func f) {
+        node<type*> *tmp;
+        tmp = head->next;
+        while (tmp!=this->tail)
+        {
+           f(*(tmp->obj));
+            tmp = tmp->next;
+        }
+    }
     CacheManager(int capacityIn){
         this->capacity = capacityIn;
         this->totalItemsInCache= 0;
