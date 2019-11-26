@@ -8,16 +8,20 @@
 #include <fstream>
 #include <map>
 #include <unordered_map>
+#include <stdio.h>
 using namespace std;
 template <class type> class node {
 public:
     string key;
-    type obj;
+    type *obj;
     node<type>* prev;
     node<type>* next;
-    node (string keyIn,type objIn) {
+    node (string keyIn,type *objIn) {
         this->key= keyIn;
         this->obj = objIn;
+    }
+    virtual ~node() {
+        free(obj);
     }
     node (){
     }
@@ -26,108 +30,114 @@ template <class type> class CacheManager {
 private:
     int capacity;
     int totalItemsInCache;
-    FILE* disk;
-    node <type*>* head;
-    node <type*>* tail;
-    unordered_map< string, node<type*>> mp;
+    node <type>* head;
+    node <type>* tail;
+    unordered_map<string, node<type>*> mp;
 public:
-    void writeToFile(type obj,string key) {
+    void writeToFile(type *obj,string key) {
         // Object to write in file
         ofstream file_obj;
         // Opening file in append mode
-        file_obj.open(obj.class_name +key+".txt");//, ios::out | ios::binary);
-        // Writing the object's data in file
-        file_obj.write((char*)&obj, sizeof(obj));
+        file_obj.open(obj->class_name +key+".txt");
+        file_obj.write((char*)obj, sizeof(type));
+
         file_obj.close();
     }
-    type readToFile(string key) {
+    type *readToFile(string key) {
         ifstream file_obj;
-        type* objPtr = new type();
+        type *objPtr = new type();
         // Opening file in input mode
-        file_obj.open(objPtr->class_name+key+".txt");//, ios::in| ios::binary);
-        // Object of class contestant to input data in file
-        // Reading from file into object "obj"
-        file_obj.read((char*)&(* objPtr), sizeof(* objPtr));
+        string s = objPtr->class_name+key;
+        file_obj.open(s+".txt");
+        file_obj.read((char*)objPtr, sizeof(type));
         file_obj.close();
-        return * objPtr;
+        return objPtr;
     }
     void insert(string key, type obj) {
-        type* objIn = new type();
-        *objIn = obj;
-       writeToFile(*objIn,key);
-        type* objTemp =  new type();
-        *objTemp =readToFile(key);
-        //node <type*> nodeIn= new ::node<type*>(key,new type(obj));
-        node<type*>* nodeIn = new ::node<type*>(key,objIn);
+        type *objIn = new type(obj);
+        insert(key, objIn);
+    }
+    void insert(string key, type *objIn) {
+        writeToFile(objIn,key);
+        //node <type*> nodeIn= new ::node<type>(key,new type(obj));
+        node<type>* nodeIn = new ::node<type>(key,objIn);
         auto search = this->mp.find(key);
         if ( search != this->mp.end()) {
-            node<type*>* temp =  &(search->second);
-            ((search->second).obj)=  objIn;
+            node<type>* temp =  (search->second);
+            ((search->second)->obj)=  objIn;
             moveToHead(nodeIn,temp);
             return;
         }
         addToFront(nodeIn);
-        put(key,*objIn,nodeIn);
+        put(key,nodeIn);
     }
-    void addToFront(node<type*>* nodeIn) {
+    void addToFront(node<type>* nodeIn) {
         // Wire up the new node being to be inserted
         if(this->capacity!=this->totalItemsInCache) {
             nodeIn->prev = head;
             nodeIn->next = head->next;
             auto search = this->mp.find(nodeIn->key);
             if ( search != this->mp.end()) {
-                (search->second).prev= head;
-                (search->second).next= head->next;
+                (search->second)->prev= head;
+                (search->second)->next= head->next;
             }
-            node<type*>* temp =head->next;
+            node<type>* temp =head->next;
             (head->next)->prev = nodeIn;
             head->next = nodeIn;
             search = this->mp.find((temp)->key);
             if ( search != this->mp.end()) {
-                (search->second).prev = nodeIn;
+                (search->second)->prev = nodeIn;
             }
             search = this->mp.find(head->key);
             if ( search != this->mp.end()) {
-                (search->second).next=nodeIn;
+                (search->second)->next=nodeIn;
             }
             this->totalItemsInCache++;
         }else {
-            node<type*>* temp = tail->prev;
+            node<type>* temp = tail->prev;
             removeFromList(temp);
             mp.erase(temp->key);
+            delete temp;
             addToFront(nodeIn);
         }
     }
-    void removeFromList(node<type*>* nodeIn) {
-        node<type*>* savedPrev = nodeIn->prev;
-        node<type*>* savedNext = nodeIn->next;
+    void removeFromList(node<type>* nodeIn) {
+        node<type>* savedPrev = nodeIn->prev;
+        node<type>* savedNext = nodeIn->next;
         savedPrev->next = savedNext;
         savedNext->prev = savedPrev;
         auto search = this->mp.find(savedPrev->key);
         if ( search != this->mp.end()) {
-            (search->second).next= savedNext;
+            (search->second)->next= savedNext;
         }
         search = this->mp.find(savedNext->key);
         if ( search != this->mp.end()) {
-            (search->second).prev= savedPrev;
+            (search->second)->prev= savedPrev;
         }
         -- this->totalItemsInCache;
     }
-    void moveToHead(node<type*> * nodeIn,node<type*>*temp) {
+    void moveToHead(node<type>* nodeIn,node<type>*temp) {
         removeFromList(temp);
         addToFront(nodeIn);
     }
     type get(string key) {
+        //type* objIn;// = new type()
+        type t;
         auto search = mp.find(key);
+       // std::ifstream p (s+".txt");
         if ( search == mp.end()) {
-            throw " not found"; // we should throw an exception here, but for Leetcode's sake
+           if(fopen(( t.class_name +key+".txt").c_str(),"r")) {
+              type *objIn = readToFile(key);
+              insert(key,objIn);
+              return *objIn;
+           }
+            throw "key not exists both in cache and disk!"; // we should throw an exception here, but for Leetcode's sake
         }
-        // Item has been accessed. Move to the front of the cache
-        moveToHead(&(search->second),&(search->second));
-        return (*((search -> second).obj));
+        moveToHead((search->second),(search->second));
+        return *(((search -> second)->obj));
     }
     template <typename Func> void foreach(Func f) {
-        node<type*> *tmp;
+        node<type> *tmp;
         tmp = head->next;
         while (tmp!=this->tail)
         {
@@ -138,29 +148,31 @@ public:
     CacheManager(int capacityIn){
         this->capacity = capacityIn;
         this->totalItemsInCache= 0;
-        // Cache starts empty and capacity is set by client
-        // Dummy head and tail nodes to avoid empty states
-        head = new node<type*>();
-        tail = new node<type*>();
+        head = new node<type>();
+        tail = new node<type>();
         head->key="HEAD";
         tail->key="TAIL";
         // Wire the head and tail together
         head->next = tail;
         tail->prev = head;
-        mp.insert({"HEAD",*(head)});
-        mp.insert({"TAIL",*(tail)});
+        mp.insert({"HEAD",(head)});
+        mp.insert({"TAIL",(tail)});
     }
-    void put(string keyIn, type obj,node<type*>* node1) {
-        auto search = mp.find(keyIn);
-        if ( search== mp.end()) {
-            mp.insert({keyIn,*(node1)});
-            // If over capacity remove the LRU item
+    void put(string keyIn,node<type>* node1) {
+        mp[keyIn] = node1;
+               // If over capacity remove the LRU item
             if (totalItemsInCache > capacity) {
                 cout<<"overload"<<endl;
             }
-        } else {
-            // If item is found in the cache, just update it and move it to the head of the list
+    }
+    virtual ~CacheManager() {
+        node<type>* headIn = head;
+        while(headIn->next){
+            node<type>* temp = headIn->next;
+            delete(headIn);
+            headIn= temp;
         }
+        delete (tail);
     }
 };
 #endif //EX2_EX2_H
