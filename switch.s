@@ -4,50 +4,50 @@ switch2:
 movq $0,%rax
 movq $21,%rdx
 cmpq $10,%rdx
-ja .Ldefualt
+ja .Ldefault
 jmp *.Ljunp(, %rdx , 8)
 .L27 :
 movq (%rdi),%rcx
 movq %rcx,(%rsi)
 movq (%rsi),%rax
-jump .Ldone
+jmp .Ldone
 .L25 :
 movq (%rsi),%rcx
 addq %rcx,(%rdi)
 movq (%rdi),%rax
-jump .Ldone
+jmp .Ldone
 .L29 :
 .L30 :
 subq $59,(%rdi)
 movq (%rdi),%rcx
 subq %rcx,(%rsi)
-jump .Ldone
+jmp .Ldone
 .L23 :
 addq $60,(%rdi)
 .L21 :
 movq (%rsi),%rax
 imulq %rax,%rax
-jump .Ldone
+jmp .Ldone
 .L31 :
 movq (%rsi),%rax
 movq (%rdi),%rcx
 sarq %cl,%rax
-jump .Ldone
+jmp .Ldone
 .L22:
-jump .Ldefault
+jmp .Ldefault
 .L24:
-jump .Ldefault
+jmp .Ldefault
 .L26:
-jump .Ldefault
+jmp .Ldefault
 .L28:
-jump .Ldefault
-.Ldefualt:
+jmp .Ldefault
+.Ldefault:
 movq $12,%rax
 salq $3,%rax
 .Ldone:
 ret
 	.section	.rodata
-	.alig 8
+	.align 8
 .Ljunp:
 .quad .L21
 .quad .L22
