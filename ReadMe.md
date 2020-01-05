@@ -1,7 +1,17 @@
 # Assignment 3 
 in this project we were asked to connect the server of "Flightgear" and read values from it and also to connect as a Client and actually send the server updates about variables in the game's algorithm, all that according to "fly.txt".
+### How to compile?
+```sh
+g++ -std=c++14 *.cpp -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -o a.out -pthread
+```
+### How to run?
+```sh
+./a.out fly.txt
+```
+### Our github page:
+https://github.com/nikolbashirsa/nikshi
 
--this project has a serious amount of code and because of that this file will make everything clear to you.
+- this project has a serious amount of code and because of that this file will make everything clear to you.
 ### The main
 >The lexer
 ```sh
@@ -50,14 +60,12 @@ Note: in this program only single Command* is Created for each type of Command.
   void parser(unordered_map<string, Command *> *mp, string *array, int size, int *offWhileServer)
 ```
 one of the main functions of this program, in here all the threads created:
-
 | Thread | Function |
 | ------ | ------ |
 | thread t1(&OpenServerCommand::acceptence, ref((c1)), &(array[index + 1])) | waiting until acceptence from server |
 |  thread t2(&OpenServerCommand::initializeServerMap, ref((c1))) |  initialize server map|
 |thread t3(&OpenServerCommand::dataEntryPoint, ref((c1))) | while loop that is "alive" after acceptence until exit 0, in this thread the program gets updates from server|
 | thread t4(&ConnectCommand::connection, ref(m2), &array[index + 1]) | make a connection as a client to the simulator|
-
 after creating threads the program calls to 
 ```sh
    iterateParser(size, mp, &index, array);
@@ -95,122 +103,141 @@ Note: the sleep command knows the var table in case of usig shunting yard.
 int SleepCommand::execute(string *s)
 ```
  calculating the number of seconds we want to sleep by the shunting yard.
- 
- * making the thread sleep that long.
+ ### ShuntingYard.cpp
+  the shunting yard class takes a string that has variables, numbers and mathmatical signs and
+ * creates an expression out of it.
+ * in order to calculates the expression we use the map provided in the setVariables func.
+ * we pay attention to order and the precedence.
+### PrintCommand.cpp
+ ```sh
+PrintCommand::PrintCommand(unordered_map <string, Var*> * varTableIn)
+```
+Note that  it kmows the varTable.
+ ```sh
+ int PrintCommand::execute(std::__cxx11::string *print)
+ ```
+  printing a sentence or a number we calculate using the shunting yard.
+### IfCommand.cpp
+ ```sh
+IfCommand::IfCommand(unordered_map<string, Command *> *mapCommandIn, unordered_map<string, Var *> *varTableIn)
+ ```
+  ```sh
+int IfCommand::execute(string *s) 
+ ```
+ uses the executeHelper func of ConditionParser, returning from it the number of steps we need to jump in the array until the end of the parenthesis.
 
-* [AngularJS] - HTML enhanced for web apps!
-* [Ace Editor] - awesome web-based text editor
-* [markdown-it] - Markdown parser done right. Fast and easy to extend.
-* [Twitter Bootstrap] - great UI boilerplate for modern web apps
-* [node.js] - evented I/O for the backend
-* [Express] - fast node.js network app framework [@tjholowaychuk]
-* [Gulp] - the streaming build system
-* [Breakdance](https://breakdance.github.io/breakdance/) - HTML to Markdown converter
-* [jQuery] - duh
-
-And of course Dillinger itself is open source with a [public repository][dill]
- on GitHub.
-
-### Installation
-
-Dillinger requires [Node.js](https://nodejs.org/) v4+ to run.
+### LoopCommand.cpp
+  ```sh
+LoopCommand::LoopCommand(unordered_map<string, Command *> *mapCommandIn, unordered_map<string, Var *> *varTableIn)
+ ```
+   ```sh
+   int LoopCommand::execute(string *s)
+ ```
+ uses the executeHelper func of ConditionParser.
+ * if the condition in the loop is false - returning from it the number of steps we need to jump in the array until the end of the parenthesis.
+ * if the condition is true - returning 0 so we will execute it again.
+ ### DefineVarCommand.cpp
+   ```sh
+DefineVarCommand::DefineVarCommand(unordered_map<string, Var *> *varTableIn, unordered_map<string, Var *> *server_map,  mutex *muteServerMap, mutex *varMute)
+ ```
+  ```sh
+int DefineVarCommand::execute(string *s);
+ ```
+  creating a new var according to the text file.
+ * if the sign is -> we will create a new one,
+ * if the sign is <- we will look for it in the map of the vares that were created in the server command
+ * if the sign is = we will create it and assign a value to it.
 
 Install the dependencies and devDependencies and start the server.
 
 ```sh
-$ cd dillinger
-$ npm install -d
-$ node app
+ bool DefineVarCommand::checkForErrow(string *s) ;
+ ```
+ returns true if the string has ->/<- and false otherwise.
+ ## ConditionParser.cpp
+ ```sh
+ void ConditionParser::parser(unordered_map<string, Command *> *mp, string *array, int size)
+  ```
+  going through the commands between the parenthesis and executing them 
+For production environments.
+ ```sh
+ bool ConditionParser::checkCondition(string *original) 
+   ```
+checking the condition of the Command so we will know if to execute the commands inside the parenthesis.
+```sh
+int ConditionParser::executeHelper(string *s)
 ```
+counting how many places in the array belong to this command so we'll know what number to return
+   from the execute func. executing the commands inside the parenthesis accordingly.
+### AssignCommand.cpp
+```sh
+AssignCommand::AssignCommand(unordered_map<string, Var *> *varTableIn, ConnectCommand *connectIn)
+```
+```sh
+int AssignCommand::execute(string * s)
+```
+ changing a value of a var by calculating the value in the shunting yard.
+  ### OpenServerCommand.cpp
+  ```sh
+  OpenServerCommand::OpenServerCommand(std::unordered_map<string, Var *> *pMap, int *offWhileServerIn)
+ ```
+   ```sh
+ int OpenServerCommand::dataEntryPoint() ;
+  ```
+   receiving the information from the server and updating the var's values until we finish reading the text file.
+ ```sh
+   void OpenServerCommand::initializeServerMap();
+```
+receiving the information from the server and updating the var's values.
+ ```sh
+void OpenServerCommand::updateMap(string buffer, bool firstTime);
+```
+using the buffer to update the var's values by separating the numbers between the commands.
+ ```sh
+void OpenServerCommand::acceptence(string *s) ;
+```
+ ```sh
+string OpenServerCommand::initializeVars(string sub, int i, bool firstTime);
+```
+creating the vars and updating their sim and name by the generic_small file.
+ * updating their direction to be towards outside and their values to be 0.
+ * the string we send back is the sim of the var we entered it's i
+  ```sh
+void OpenServerCommand::notFirstRead(string sub, int i)
+```
+updating the var's values according to the buffer we got from the server.
+```sh
+string OpenServerCommand::readOneChar()
+```
+ reading the information from the server char by char until finding /n, combibng all the chars and returning the string so we can use it to update the var's values.
 
-For production environments...
+### ConnectCommand.cpp
+```sh
+ConnectCommand::ConnectCommand(unordered_map<string, Var *> *pMap)
+```
+```sh
+int ConnectCommand::execute(string *s);
+```
+executing the command - creating a client.
+```sh
+void ConnectCommand::connection(string *s);
+```
+ connecting to the client, printing a message if could not connect to host server and exiting.
+ ```sh
+ void ConnectCommand::changeValue(string sim, double value) ;
+ ``` 
+ changing a var's value in the simulator according to the text file.
+  ```sh
+void ConnectCommand::clientSetter(int socket);
+ ```
+  initializing the client socket fiels in this class.
+   ```sh
+  string ConnectCommand::editSim(string *sim);
+  ```
+  removing the " sign from the sim.
 
 ```sh
-$ npm install --production
-$ NODE_ENV=production node app
-```
-
-### Plugins
-
-Dillinger is currently extended with the following plugins. Instructions on how to use them in your own application are linked below.
-
-| Plugin | README |
-| ------ | ------ |
-| Dropbox | [plugins/dropbox/README.md][PlDb] |
-| GitHub | [plugins/github/README.md][PlGh] |
-| Google Drive | [plugins/googledrive/README.md][PlGd] |
-| OneDrive | [plugins/onedrive/README.md][PlOd] |
-| Medium | [plugins/medium/README.md][PlMe] |
-| Google Analytics | [plugins/googleanalytics/README.md][PlGa] |
-
-
-### Development
-
-Want to contribute? Great!
-
-Dillinger uses Gulp + Webpack for fast developing.
-Make a change in your file and instantaneously see your updates!
-
-Open your favorite Terminal and run these commands.
-
-First Tab:
-```sh
-$ node app
-```
-
-Second Tab:
-```sh
-$ gulp watch
-```
-
-(optional) Third:
-```sh
-$ karma test
-```
-#### Building for source
-For production release:
-```sh
-$ gulp build --prod
-```
-Generating pre-built zip archives for distribution:
-```sh
-$ gulp build dist --prod
-```
-### Docker
-Dillinger is very easy to install and deploy in a Docker container.
-
-By default, the Docker will expose port 8080, so change this within the Dockerfile if necessary. When ready, simply use the Dockerfile to build the image.
-
-```sh
-cd dillinger
-docker build -t joemccann/dillinger:${package.json.version} .
-```
-This will create the dillinger image and pull in the necessary dependencies. Be sure to swap out `${package.json.version}` with the actual version of Dillinger.
-
-Once done, run the Docker image and map the port to whatever you wish on your host. In this example, we simply map port 8000 of the host to port 8080 of the Docker (or whatever port was exposed in the Dockerfile):
-
-```sh
-docker run -d -p 8000:8080 --restart="always" <youruser>/dillinger:${package.json.version}
-```
-
-Verify the deployment by navigating to your server address in your preferred browser.
-
-```sh
-127.0.0.1:8000
-```
-
-#### Kubernetes + Google Cloud
-
-See [KUBERNETES.md](https://github.com/joemccann/dillinger/blob/master/KUBERNETES.md)
-
-
-### Todos
-
- - Write MORE Tests
- - Add Night Mode
-
-License
-----
-
-MIT
+  ConnectCommand:: ~ConnectCommand()
+   ```
+closing the client socket.
 
