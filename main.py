@@ -2,15 +2,15 @@ import sys
 import numpy as np
 import scipy.io.wavfile
 
-def update_center(centroids_list:dict, centroids, x,k):
-    print (k)
-    for c in range (len(centroids_list)):
-        samples = centroids_list[c]
-        if(len(samples) != 0):
-            centroids[c] = np.round(np.average(samples,0))
-            print (centroids[c])
-    return centroids
 
+def update_center(centroids_list: dict, centroids, x, k):
+    print(k)
+    for c in range(len(centroids_list)):
+        samples = centroids_list[c]
+        if len(samples) != 0:
+            centroids[c] = np.round(np.average(samples, 0))
+            print(centroids[c])
+    return centroids
 
 
 def classify(cur_centroids, sample):
@@ -22,19 +22,17 @@ def classify(cur_centroids, sample):
         lenght = np.linalg.norm(center - sample)
         if minlenght > lenght:
             mincenter = index
-            minlenght=lenght
+            minlenght = lenght
         index = index + 1
     return mincenter
 
 
-def classifyAllSamples(centroids_list:dict, cur_centroids, samples):
+def classifyAllSamples(centroids_list: dict, cur_centroids, samples):
     centroids_list1 = dict()
     for samp in samples:
         index = classify(cur_centroids, samp)
-        centroids_list1.setdefault(index,[]).append(samp)
+        centroids_list1.setdefault(index, []).append(samp)
     return centroids_list1
-
-
 
 
 if __name__ == '__main__':
@@ -46,17 +44,15 @@ if __name__ == '__main__':
     centroids_list = dict()
     # first classification#
     centroids_list = classifyAllSamples(centroids_list, centroids, x)
-    s=""
-    file =open("output.txt","w")
+    s = ""
+    file = open("output.txt", "w")
     # Iterate 30 times#
     for iter in range(0, 30):
         centroids = update_center(centroids_list, centroids, x, k)
+        print(type(centroids))
         centroids_list = classifyAllSamples(centroids_list, centroids, x)
-        s=f"[iter {iter+1}]:{','.join([str(i) for i in centroids])}\n"
+        s = f"[iter {iter}]:{','.join([str(i) for i in centroids])}\n"
         file.write(s)
 
-    scipy.io.wavfile.write("compressed.wav", fs, centroids)
+    scipy.io.wavfile.write("compressed.wav", fs, np.array(centroids, dtype=np.int16))
     file.close()
-
-
-
