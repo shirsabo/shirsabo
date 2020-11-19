@@ -2,57 +2,43 @@ import sys
 import numpy as np
 import scipy.io.wavfile
 
+def most_frequent(List):
+    return max(set(List), key = List.count)
 
-def update_center(centroids_list: dict, centroids, x, k):
-    print(k)
-    for c in range(len(centroids_list)):
-        samples = centroids_list[c]
-        if len(samples) != 0:
-            centroids[c] = np.round(np.average(samples, 0))
-            print(centroids[c])
-    return centroids
+def euclidian_distance(self, a, b):
+    return np.sqrt(np.sum((a - b) ** 2, axis=1))
 
 
-def classify(cur_centroids, sample):
-    minlenght = np.linalg.norm(cur_centroids[0] - sample)
-    mincenter = 0
-    lenght = 0
-    index = 0
-    for center in cur_centroids:
-        lenght = np.linalg.norm(center - sample)
-        if minlenght > lenght:
-            mincenter = index
-            minlenght = lenght
-        index = index + 1
-    return mincenter
+def k_nearest_neighbors(data, predict, k=3):
 
+    distances = []
+    for group in data:
+        for features in data[group]:
+            euclidean_distance = np.linalg.norm(np.array(features) - np.array(predict))
+            distances.append([euclidean_distance, group])
 
-def classifyAllSamples(centroids_list: dict, cur_centroids, samples):
-    centroids_list1 = dict()
-    for samp in samples:
-        index = classify(cur_centroids, samp)
-        centroids_list1.setdefault(index, []).append(samp)
-    return centroids_list1
+    votes = [i[1] for i in sorted(distances)[:k]]
+    vote_result = most_frequent(votes)
+    return vote_result
 
-
+# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    sample, centroids = sys.argv[1], sys.argv[2]
-    fs, y = scipy.io.wavfile.read(sample)
-    x = np.array(y.copy())
-    centroids = np.loadtxt(centroids)
-    k: int = centroids.size // 2
-    centroids_list = dict()
-    # first classification#
-    centroids_list = classifyAllSamples(centroids_list, centroids, x)
-    s = ""
-    file = open("output.txt", "w")
-    # Iterate 30 times#
-    for iter in range(0, 30):
-        centroids = update_center(centroids_list, centroids, x, k)
-        print(type(centroids))
-        centroids_list = classifyAllSamples(centroids_list, centroids, x)
-        s = f"[iter {iter}]:{','.join([str(i) for i in centroids])}\n"
-        file.write(s)
+    test , train_x, train_y  = sys.argv[1], sys.argv[2] , sys.argv[3]
+    xList , yList =[],[]
+    with open(train_x, 'r') as readerX:
+        with open(train_y, 'r') as readerY:
+            lineX ,lineY = readerX.readline(),readerY.readline()
+            while lineX != '' and lineY != '':  # The EOF char is an empty string
+                x1 =lineX.split(",")
+                if x1[11][0] == 'W':
+                    x1[11] = 1
+                    x1.append(0)
+                else:
+                    x1[11] = 0
+                    x1.append(1)
+                xList.append(np.asarray(x1))
+                yList.append(lineY)
+                lineX = readerX.readline()
+                lineY = readerY.readline()
+    print (len(xList))
 
-    scipy.io.wavfile.write("compressed.wav", fs, np.array(centroids, dtype=np.int16))
-    file.close()
