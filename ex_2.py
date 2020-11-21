@@ -29,7 +29,7 @@ def preceptron_accuracy(xlist,ylist):
 
 def preceptron_algo(pxlist,pylist):
     ephocs = 13
-    learningRate = 1
+    learningRate = 0.2
     eta = np.array([learningRate]*13)
     eta [12] = 1
     matrix = create_matrix()
@@ -43,7 +43,7 @@ def preceptron_algo(pxlist,pylist):
         for x, y in zip(x_train, y_train):
             y_hat = np.argmax(np.dot(matrix, x))
             if y != y_hat:
-                matrix[int(y)] = matrix[int(y_hat)] + learningRate * x
+                matrix[int(y)] = matrix[int(y)] + learningRate * x
                 matrix[int(y)][len(matrix[int(y)])-1] = matrix[int(y)][len(matrix[int(y)])-1] + 1
                 matrix[int(y_hat)] = matrix[int(y_hat)] - learningRate * x
                 matrix[int(y_hat)][len(matrix[int(y_hat)]) - 1] = matrix[int(y_hat)][len(matrix[int(y_hat)]) - 1] - 1
