@@ -2,56 +2,129 @@ import random
 import sys
 import numpy as np
 import scipy.io.wavfile
+from sklearn.model_selection import KFold
 from sklearn.utils import shuffle
 
+def Kfold(xlist,ylist):
+    xlist, ylist= shuffle(xlist,ylist, random_state=1)
+    n = len(xlist)
+    maxAcurancy = - 1
+    maxaccurancyIndex=0
+    Xtrain , Ytrain , Xtest , Ytest , accurancyI= [],[],[],[],[]
+    x1 = xlist
+    kf = KFold(n_splits=5)
+    kf.get_n_splits(x1)
+    sum = 0;
+    # print(kf)
+    counter = 0
+    for train_index, test_index in kf.split(x1):
+        Xtrain, Ytrain, Xtest, Ytest = [], [], [], []
+        for index in train_index:
+            Xtrain.append(xlist[index])
+            Ytrain.append(ylist[index])
+        for index1 in train_index:
+            Xtest.append(xlist[index1])
+            Ytest.append(ylist[index1])
+        accurancy = PA_accuracy(Xtrain, Ytrain, Xtest, Ytest)
+        sum = sum + accurancy
+        counter = counter + 1
+    print ("avergage for PA is :")
+    print (sum/counter)
+
+def calculate_accurancy():
+    pass
+
+
+def PA_accuracy(linetrainX,linetrainy,testx,testy):
+    loss = 0
+    matrix = PA_algo(linetrainX, linetrainy)
+    for i in range(len(testx)):
+        y_hat = np.argmax(np.dot(matrix, np.append(testx[i], 1)))
+
+        #print(y_hat, int(testy[i]))
+        if int(testy[i]) != y_hat:
+            loss = loss + 1
+    return 1-(loss/len(testx))
+
+def calculate_hinge(predict, actual, x):
+    return max(0, 1 - np.dot(actual, x) + np.dot(predict, x))
+
+
+def calculate_tao(hinge, x):
+    normaPow2 = (np.linalg.norm(x)) ** 2
+    return (hinge / (2 * normaPow2))
+
+
+def PA_algo(pxlist, pylist):
+    ephocs = 30
+    matrix = create_matrix()
+    for e in range(ephocs):
+        Xconvert = []
+        x_train, y_train = shuffle(pxlist, pylist, random_state=1)
+        for i in range(0, len(pxlist)):
+            Xconvert.append(np.append(x_train[i], 1))
+        x_train = Xconvert
+        for x, y in zip(x_train, y_train):
+            y_hat = np.argmax(np.dot(matrix, x))
+            if y != y_hat:
+                hinge = calculate_hinge(matrix[int(y)], matrix[int(y_hat)], x)
+                tao = calculate_tao(hinge, x)
+                matrix[int(y)] = matrix[int(y)] + (tao * x)
+                matrix[int(y_hat)] = matrix[int(y_hat)] - (tao * x)
+
+
+    return matrix
+
+
+# ----------------------------------------------------
 def create_matrix():
     arr = []
-    for i in range (3):
-        arr.append(np.append(np.random.uniform(0, 1, 12),0))
+    for i in range(3):
+        arr.append(np.append(np.random.uniform(0, 1, 12), 0))
     return arr
 
-def preceptron_accuracy(xlist,ylist):
+
+def preceptron_accuracy(xlist, ylist):
     n = len(xlist)
-    size = round(n * 0.8)
+    size = round(n * 0.9)
     linetrainX = xlist[:size]
     linetrainy = ylist[:size]
     testx = xlist[size:]
     testy = ylist[size:]
     loss = 0
-    matrix = preceptron_algo(linetrainX,linetrainy)
-    for i in range (len(testx)):
-        y_hat = np.argmax(np.dot(matrix,np.append(testx[i],1)))
-        print (y_hat,int(testy[i]))
+    matrix = preceptron_algo(linetrainX, linetrainy)
+    for i in range(len(testx)):
+        y_hat = np.argmax(np.dot(matrix, np.append(testx[i], 1)))
+        print(y_hat, int(testy[i]))
         if int(testy[i]) != y_hat:
-            loss  = loss +1
+            loss = loss + 1
     print("preceptron_accuracy")
-    print (loss)
+    print(loss)
 
-def preceptron_algo(pxlist,pylist):
-    ephocs = 13
-    learningRate = 0.2
-    eta = np.array([learningRate]*13)
-    eta [12] = 1
+
+def preceptron_algo(pxlist, pylist):
+    ephocs = 50
+    learningRate = 0.4
+    eta = np.array([learningRate] * 13)
+    eta[12] = 1
     matrix = create_matrix()
     for e in range(ephocs):
         Xconvert = []
         x_train, y_train = shuffle(pxlist, pylist, random_state=1)
-        for i in range(0,len(pxlist)):
-            print (i)
+        for i in range(0, len(pxlist)):
             Xconvert.append(np.append(x_train[i], 1))
         x_train = Xconvert
         for x, y in zip(x_train, y_train):
             y_hat = np.argmax(np.dot(matrix, x))
             if y != y_hat:
                 matrix[int(y)] = matrix[int(y)] + learningRate * x
-                matrix[int(y)][len(matrix[int(y)])-1] = matrix[int(y)][len(matrix[int(y)])-1] + 1
+                #matrix[int(y)][len(matrix[int(y)]) - 1] = matrix[int(y)][len(matrix[int(y)]) - 1] + 1
                 matrix[int(y_hat)] = matrix[int(y_hat)] - learningRate * x
-                matrix[int(y_hat)][len(matrix[int(y_hat)]) - 1] = matrix[int(y_hat)][len(matrix[int(y_hat)]) - 1] - 1
-    print (matrix)
-    print("--------------------")
+                #matrix[int(y_hat)][len(matrix[int(y_hat)]) - 1] = matrix[int(y_hat)][len(matrix[int(y_hat)]) - 1] - 1
     return matrix
 
-#-----------------------------------------------
+
+# -----------------------------------------------
 def norm_vec(Xlist, testIn, flag):
     if flag == 1:
         tests = TestList()
@@ -65,9 +138,8 @@ def norm_vec(Xlist, testIn, flag):
             Xlist[i][j] = (Xlist[i][j] - minVal[j]) / (maxVal[j] - minVal[j])
     for testElement in range(i, len(y)):
         for col in range(0, len(minVal)):
-            if (testElement - i - 1 >= 0):
-                tests[testElement - i - 1][col] = (tests[testElement - i - 1][col] - minVal[col]) / (
-                            maxVal[col] - minVal[col])
+            if (testElement - i - 1) >= 0:
+                tests[testElement - i - 1][col] = (tests[testElement - i - 1][col] - minVal[col]) / (maxVal[col] - minVal[col])
     return Xlist, tests
 
 
@@ -188,4 +260,8 @@ if __name__ == '__main__':
         dic.setdefault(Ylist[i].replace('\n', ''), []).append(Xlist[i])
     KNN_algo(dic, testList, validation(Xlist, Ylist))
     preceptron_accuracy(Xlist, Ylist)
+    #PA_accuracy(Xlist, Ylist)
     # KNN_algo(dic,testList,4)
+    Kfold(Xlist, Ylist)
+
+
