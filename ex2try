@@ -1,0 +1,195 @@
+import sys
+import numpy as np
+
+def printPredictions(KNN, PR, PA):
+    for i in range(len(KNN)):
+        print(f"knn: {KNN[i]}, perceptron: {PR[i]}, pa: {PA[i]}")
+
+
+def run_algo(linetrainX, linetrainy, testx, func, param):
+    prediction = []
+    linetrainX, testx = norm_vec(linetrainX, testx, 0)
+    matrix = func(linetrainX, linetrainy, param)
+    for i in range(len(testx)):
+        y_hat = np.argmax(np.dot(matrix, np.append(testx[i], 1)))
+        prediction.append(y_hat)
+    return prediction
+
+
+def calculate_tao(w, y, y_hat, x):
+    w_y_x = np.dot(w[y, :], x)
+    w_y_hat_x = np.dot(w[y_hat, :], x)
+    loss = max(0, 1 - w_y_x + w_y_hat_x)
+    x_norm = np.linalg.norm(x)
+    if (x_norm == 0):
+        return 0
+    return loss / (2 * (np.power(x_norm, 2)))
+
+
+def PA_algo(pxlist, pylist, param):
+    ephocs = param[0]
+    matrix = create_matrix()
+    for e in range(ephocs):
+        Xconvert = []
+       # x_train, y_train = shuffle(pxlist, pylist, random_state=None)
+        for i in range(0, len(pxlist)):
+            Xconvert.append(np.append(pxlist[i], 1))
+        x_train = Xconvert
+        for x, y in zip(x_train, pylist):
+            Dot = np.dot(matrix, x)
+            expect_index = [int(y)]
+            m = np.zeros(Dot.size, dtype=bool)
+            m[expect_index] = True
+            w_no_y = np.ma.array(Dot, mask=m)
+            y_hat = np.argmax(w_no_y)
+            tao = calculate_tao(matrix, int(y), int(y_hat), x)
+            matrix[int(y), :] = matrix[int(y), :] + (tao * x)
+            matrix[int(y_hat), :] = matrix[int(y_hat), :] - (tao * x)
+
+    return matrix
+
+
+
+def create_matrix():
+    arr = np.zeros(shape=(3, 13))
+    return arr
+
+def preceptron_algo(pxlist, pylist, param):
+    ephocs = param[0]
+    learningRate = param[1]
+    eta = np.array([learningRate] * 13)
+    eta[12] = 1
+    matrix = create_matrix()
+    for e in range(ephocs):
+        Xconvert = []
+        #x_train, y_train = shuffle(pxlist, pylist, random_state=None)
+        for i in range(0, len(pxlist)):
+            Xconvert.append(np.append(pxlist[i], 1))
+        x_train = Xconvert
+        for x, y in zip(x_train,pylist):
+            y_hat = np.argmax(np.dot(matrix, x))
+            if int(y) != int(y_hat):
+                matrix[int(y), :] = matrix[int(y), :] + learningRate * x
+                matrix[int(y_hat), :] = matrix[int(y_hat), :] - learningRate * x
+    return matrix
+
+
+
+def norm_vec(Xlist, testIn, flag):
+    XlistCopy = Xlist.copy()
+    tests =[]
+    if flag == 1:
+        tests = TestList()
+    elif flag == 0:
+        tests = testIn
+    testInCopy = tests.copy()
+    minVal, maxVal = min_max(Xlist)
+    y = np.array(np.concatenate((tests, Xlist.copy())))
+    for i in range(0, len(Xlist)):
+        for j in range(0, len(minVal)):
+            XlistCopy[i][j] = (XlistCopy[i][j] - minVal[j]) / (maxVal[j] - minVal[j])
+    for testElement in range(0, len(tests)):
+        for col in range(0, len(minVal)):
+            testInCopy[testElement][col] = (testInCopy[testElement][col] - minVal[col]) / (maxVal[col] - minVal[col])
+    return XlistCopy, testInCopy
+
+
+def min_max(Xlist):
+    n = len(Xlist)
+    m = len(Xlist[0])
+    matrix = []
+    for i in range(n):
+        matrix.append(np.asarray(Xlist[i]).astype(np.double))
+    matrix1= np.array (matrix).T
+    cols_num = len(matrix[0])
+    min_vals, max_vals = [0] * m, [0] * m
+    for y in range(0, m):
+        val = matrix[0][y]
+        min_vals[y], max_vals[y] = val, val
+        for x in range(0, n):
+            if matrix[x][y] > max_vals[y]:
+                max_vals[y] = matrix[x][y]
+            if matrix[x][y] < min_vals[y]:
+                min_vals[y] = matrix[x][y]
+    return min_vals, max_vals
+
+
+def TestList():
+    testList = []
+    with open(test, 'r') as readerTest:
+        testVec = readerTest.readline()
+        while testVec != '':
+            testVec = convertVec(testVec.split(","))
+            testList.append(np.asarray(testVec).astype(np.float))
+            testVec = readerTest.readline()
+    return testList
+
+
+def KNN_algo(dic2, listTest, k):
+    prdeiction = []
+    for i in range(len(listTest)):
+        predict = k_nearest_neighbors(dic2, dic2, np.asarray(listTest[i]).astype(np.double), k)
+        prdeiction.append(predict)
+    return prdeiction
+
+
+def convertVec(x1):
+    if x1[11][0] == 'W':
+        x1[11] = "1"
+    elif x1[11][0] == 'R':
+        x1[11] = "0"
+    return x1
+
+
+def most_frequent(List):
+    return str(np.bincount(List).argmax())
+
+
+def euclidianDistance(self, a, b):
+    return np.sqrt(np.sum((a - b) ** 2, axis=1))
+
+
+def k_nearest_neighbors(tempData, data, predict, k):
+    distances = []
+    for key, value in tempData.items():
+        for vec in value:
+            euclidean_distance = np.linalg.norm(vec - predict)
+            distances.append([euclidean_distance, key])
+    votes = [i[1] for i in sorted(distances)[:k]]
+    vote_result = most_frequent(votes)
+    return vote_result
+
+
+if __name__ == '__main__':
+    test, train_x, train_y = sys.argv[1], sys.argv[2], sys.argv[3]
+    xList, yList = [], []
+    XlistCopyKNN = []
+    XlistCopyPR = []
+    XlistCopyPA = []
+    XlistTemp = []
+    dic = {}
+    Xlist, Ylist = [], []
+    with open(train_x, 'r') as readerX:
+        with open(train_y, 'r') as readerY:
+            lineX, lineY = readerX.readline(), readerY.readline()
+            while lineX != '' and lineY != '':  # The EOF char is an empty string
+                x1 = lineX.split(",")
+                x1 = convertVec(x1)
+                Xlist.append(np.asarray(x1).astype(np.double))
+                XlistCopyKNN.append(np.asarray(x1).astype(np.double))
+                XlistCopyPR.append(np.asarray(x1).astype(np.double))
+                XlistCopyPA.append(np.asarray(x1).astype(np.double))
+                XlistTemp.append(np.asarray(x1).astype(np.double))
+                Ylist.append(lineY)
+                lineX = readerX.readline()
+                lineY = readerY.readline()
+    Xlist, testList = norm_vec(np.asarray(Xlist), None, 1)
+    for i in range(len(Xlist)):
+        dic.setdefault(Ylist[i].replace('\n', ''), []).append(Xlist[i])
+    predictionKNN = KNN_algo(dic, testList, 7)
+    param = [60, 0.005]
+    TestL = TestList()
+    prdeictionPR = run_algo(XlistCopyPR, Ylist, TestList(), preceptron_algo, param)
+    param = [10]
+    prdeictionPA = run_algo(XlistCopyPA, Ylist, TestList(), PA_algo, param)
+    printPredictions(predictionKNN, prdeictionPR, prdeictionPA)
