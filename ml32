@@ -1,0 +1,187 @@
+# This is a sample Python script.
+
+# Press Shift+F10 to execute it or replace it with your code.
+# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import math
+import sys
+import random
+import matplotlib.pyplot as plt
+
+import numpy as np
+
+import numpy as np
+lr = 0.01
+def one_hot(y_list):
+    y_new =[]
+    for y in range(len(y_list)):
+        yi = [0]*10
+        yi[int(y_list[y])] = 1
+        y_new.append(np.array(yi).reshape((10,1)))
+    return y_new
+
+def bprop(fprop_cache):
+  # Follows procedure given in notes
+  x, y, z1, h1, z2, h2, loss = [fprop_cache[key] for key in ('x', 'y', 'z1', 'h1', 'z2', 'h2', 'loss')]
+  dz2 = (h2 - y)                                #  dL/dz2
+  dW2 = np.dot(dz2, h1.T)                       #  dL/dz2 * dz2/dw2
+  db2 = dz2                                     #  dL/dz2 * dz2/db2
+  dz1 = np.dot(fprop_cache['W2'].T,
+    (h2 - y)) * sigmoid(z1) * (1-sigmoid(z1))   #  dL/dz2 * dz2/dh1 * dh1/dz1
+  dW1 = np.dot(dz1, x.T)                        #  dL/dz2 * dz2/dh1 * dh1/dz1 * dz1/dw1
+  db1 = dz1                                     #  dL/dz2 * dz2/dh1 * dh1/dz1 * dz1/db1
+  return {'b1': db1, 'W1': dW1, 'b2': db2, 'W2': dW2}
+
+
+def test_after_train(W, B, test_x):
+    prediction = []
+    for i in range(len(test_x)-1):
+        hi = forward_instance(np.array(test_x[i]).reshape((784,1)), W, B, 3)
+        prediction_i = np.argmax(hi)
+        prediction.append(prediction_i)
+    return prediction
+
+
+def insert_w_b(W, B, in_x, dim_out):
+    sd_w, sd_b = math.sqrt(6 / (in_x + dim_out)), math.sqrt(6 / (1 + dim_out)),
+    w1 = np.random.uniform(-sd_w, sd_w, (in_x, dim_out))
+    b1 = np.random.uniform(-sd_b, sd_b, (1, dim_out))
+    W.append(np.array(w1))
+    B.append(np.array(b1))
+
+
+def softmax(x):
+    """ applies softmax to an input x"""
+    e_x = np.exp(x - np.max(x))
+    return e_x / e_x.sum()
+
+
+sigmoid = lambda x: 1 / (1 + np.exp(-x))
+
+
+def create_dims(layer_num):
+    return [128 * layer_num]
+    pass
+
+
+def update_parameters(loss, dic_parameters, W, B):
+    pass
+
+
+def create_w_b():
+    random.seed(42)
+    W, B = [], []
+    w1 = np.random.rand(128, 784) / np.sqrt(784)
+    W.append(w1)
+    b0 = np.zeros((128, 1)) / np.sqrt(784)
+    B.append(b0)
+    w2 = np.random.rand(10, 128) / np.sqrt(128)
+    W.append(w2)
+    b1 = np.zeros((10, 1)) / np.sqrt(128)
+    B.append(b1)
+    '''
+ w1 = np.random.rand(128,784)/np.sqrt(784)
+b0 = np.zeros((128,1))/np.sqrt(784)
+w2 = np.random.rand(10,128)/np.sqrt(128)
+b1 = np.zeros((10,1))/np.sqrt(128)
+'''
+    return W,B
+
+def calculate_loss(W, train_x, train_y):
+    pass
+
+
+def forward_instance(x, W, B, layers_num):
+    H, Z = [], []
+    zi = np.dot(W[0], x) + B[0]
+    hi = sigmoid(zi)
+    for i in range (1, layers_num-1):
+        zi = np.dot(W[i],hi) + B[i]
+        if i != layers_num - 2:
+            hi = sigmoid(zi)
+        else:
+            hi = softmax(zi)
+            return hi
+    return hi
+
+
+
+
+def output_prediction(predictions):
+    f1 = open('test_y', 'w')
+    for i in range(0, len(predictions)):
+        f1.write(str(predictions[i]) + "\n")
+    f1.close()
+
+
+def neural_network(train_x, train_y, ephocs):
+    W, B = create_w_b()
+    for e in range(ephocs):
+        print(e)
+        Xconvert = []
+        temp = list(zip(train_x, train_y))
+        random.shuffle(temp)
+        pxlist1, pylist1 = zip(*temp)
+        for x, y in zip( pxlist1, pylist1):
+            x = np.array(x).reshape((784,1))
+            x1 = sigmoid(W[0] @ x + B[0])
+            x2 = softmax(W[1] @ x1 + B[1])
+            delta_2 = (x2 - y)
+            delta_1 = np.multiply(W[1].T @ delta_2, np.multiply(x1, 1 - x1))
+            dW1 = delta_1 @ x.T
+            dW2 = delta_2 @ x1.T
+            db0 = np.sum(delta_1, axis=1, keepdims=True)
+            db1 = np.sum(delta_2, axis=1, keepdims=True)
+            W[0] = W[0] - dW1 * (lr)
+            B[0] = B[0] - db0 * (lr)
+            W[1] = W[1] - dW2 * (lr)
+            B[1] = B[1] - db1 * (lr)
+    return W, B
+
+
+def mini_set():
+    # parameters should be: train_x train_y
+    training_examples, training_labels = sys.argv[1], sys.argv[2]
+    taken = random.sample(range(1, 55001), 5000)
+    taken.sort()
+    print(taken)
+    with open('train_x_short', 'w') as out1:
+        i = 1
+        f1 = open(training_examples)
+        for line1 in f1:
+            if i in taken:
+                out1.write(line1)
+            i += 1
+        f1.close()
+    with open('train_y_short', 'w') as out2:
+        i = 1
+        f2 = open(training_labels)
+        for line2 in f2:
+            if i in taken:
+                out2.write(line2)
+            i += 1
+        f2.close()
+
+
+def load_data(path_x, path_y, path_test_x):
+    train_x = np.loadtxt(path_x)/256
+    train_y = np.loadtxt(path_y)
+    test_x = np.loadtxt(path_test_x)/256
+    print(type(train_x[0]))
+    '''
+    for i in range (0,5000):
+        plt.imshow(train_x[i].reshape(28, -1), cmap="gray")
+        plt.show()
+    '''
+    return train_x, train_y , test_x
+
+
+# Press the green button in the gutter to run the script.
+if __name__ == '__main__':
+    layer_num = 3
+    mini_set()
+    train_x, train_y, test_x = load_data("train_x_short", "train_y_short","test_x")
+   # create_w_b(train_x, layer_num)
+    train_y = one_hot(train_y)
+    W, B = neural_network(train_x, train_y, 30)
+    prediction = test_after_train(W, B,test_x)
+    output_prediction(prediction)
